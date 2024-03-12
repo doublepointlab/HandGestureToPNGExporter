@@ -72,6 +72,5 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 .history/
-/Assets/Samples/
-/Assets/Samples/Meta XR Interaction SDK OVR Samples/62.0.0/Feature Scenes/*
-/Assets/Samples/Meta XR Interaction SDK OVR Samples/62.0.0/Example Scenes/*
+/Assets/Samples/Meta XR Interaction SDK OVR Samples/*/Feature Scenes/*
+/Assets/Samples/Meta XR Interaction SDK OVR Samples/*/Example Scenes/*
