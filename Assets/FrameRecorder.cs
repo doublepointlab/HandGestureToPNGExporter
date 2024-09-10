@@ -5,122 +5,132 @@ using System.Diagnostics;
 
 public class FrameRecorder : MonoBehaviour
 {
-    public Camera targetCamera; // The camera to capture frames from
+    [SerializeField] private Camera targetCamera; // The camera to capture frames from
+    [SerializeField] private Color backgroundColor = new Color(0, 0, 0, 0); // Background color
+    [SerializeField] private string outputFolder = "Frames"; // The folder to save the frames
+    [SerializeField] private int outputWidth = 1920; // The width of the output image
+    [SerializeField] private int outputHeight = 1080; // The height of the output image
     public int frameRate = 30; // The frame rate for capturing frames
-    public string outputFolder = "Frames"; // The folder to save the frames
-    public int startFrame = 0; // The frame to start recording
-    public int endFrame = 100; // The frame to stop recording
-    public int[] excludedFrames = { 24, 53, 88 }; // Frames to exclude from export
-    public int outputWidth = 1920; // The width of the output image
-    public int outputHeight = 1080; // The height of the output image
-    public bool exportAsMP4 = false; // Export as MP4
-    public bool exportAsPNGSequence = true; // Export as PNG Sequence
+    public int gifFrameRate = 10; // The frame rate for capturing frames
+    [SerializeField] private bool exportAsMP4 = false; // Export as MP4
+    [SerializeField] private bool exportAsPNGSequence = true; // Export as PNG Sequence
+    [SerializeField] private bool exportAsJPGSequence = false; // Export as JPG Sequence
+    [SerializeField] private bool exportAsGIF = false; // Export as GIF
+    [SerializeField] private int[] excludedFrames = { 24, 53, 88 }; // Frames to exclude from export
 
+    private int startFrame = 0; // The frame to start recording
+    [HideInInspector] public int endFrame = 100; // The frame to stop recording
     private int frameCount = 0;
     private int actualFrameCount = 0; // Counter for actual saved frames
+     
 
     void Start()
     {
-
-        // Create the output folder if it doesn't exist
-        if (!Directory.Exists(outputFolder))
+        if (gifFrameRate > frameRate)
         {
-            Directory.CreateDirectory(outputFolder);
-        }
-        else
-        {
-            // Empty the output folder if it already exists
-            DirectoryInfo di = new DirectoryInfo(outputFolder);
-            foreach (FileInfo file in di.GetFiles())
-            {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
-            }
-        }
-
-        // Ensure the camera's clear flags and background color support transparency
-        targetCamera.clearFlags = CameraClearFlags.SolidColor;
-        targetCamera.backgroundColor = new Color(0, 0, 0, 0); // Transparent background
-
+            UnityEngine.Debug.LogError("GIF frame rate cannot be higher than the main frame rate.");
+            return;
+        }        
+        CreateOutputFolder();
+        ConfigureCamera();
         StartRecording();
         
     }
 
     void LateUpdate()
     {
-
-        if (frameCount >= startFrame && frameCount <= endFrame)
+        if (frameCount >= startFrame && frameCount <= endFrame && System.Array.IndexOf(excludedFrames, frameCount) == -1)
         {
-            if (System.Array.IndexOf(excludedFrames, frameCount) == -1)
-            {
-                CaptureFrame();
-            }
+            CaptureFrame();
         }
         frameCount++;
-    
     }
 
     void CaptureFrame()
     {
-        // Create a RenderTexture with the specified dimensions
         RenderTexture renderTexture = new RenderTexture(outputWidth, outputHeight, 24, RenderTextureFormat.ARGB32);
         targetCamera.targetTexture = renderTexture;
         targetCamera.Render();
 
-        // Create a new Texture2D with the same dimensions as the RenderTexture
         Texture2D texture = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
-
-        // Read the pixels from the RenderTexture into the Texture2D
         RenderTexture.active = renderTexture;
         texture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
         texture.Apply();
 
-        // Encode the texture to PNG
-        byte[] bytes = texture.EncodeToPNG();
+        byte[] bytes = null;
+        string filePath = string.Empty;
+        if (exportAsJPGSequence || exportAsGIF)
+        {
+            bytes = texture.EncodeToJPG();
+            filePath = Path.Combine(outputFolder, "JPGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.jpg");
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            File.WriteAllBytes(filePath, bytes);
+        }        
+        if (exportAsPNGSequence || exportAsMP4)
+        {
+            bytes = texture.EncodeToPNG();
+            filePath = Path.Combine(outputFolder, "PNGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.png");
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            File.WriteAllBytes(filePath, bytes);
+        } 
+        if (exportAsJPGSequence && exportAsPNGSequence)
+        {
+            bytes = texture.EncodeToJPG();
+            filePath = Path.Combine(outputFolder, "JPGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.jpg");
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            File.WriteAllBytes(filePath, bytes);
+            bytes = texture.EncodeToPNG();
+            filePath = Path.Combine(outputFolder, "PNGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.png");
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            File.WriteAllBytes(filePath, bytes);
+        } 
 
-        // Save the PNG to the output folder
-        string filePath = Path.Combine(outputFolder, $"{outputFolder}_frame_{actualFrameCount:D}.png");
-        File.WriteAllBytes(filePath, bytes);
-
-        // Clean up
         targetCamera.targetTexture = null;
         RenderTexture.active = null;
         Destroy(renderTexture);
         Destroy(texture);
 
-        //UnityEngine.Debug.Log($"Captured frame {frameCount}");
-        actualFrameCount++; // Increment the actual frame count
+        actualFrameCount++;
     }
 
     public void StartRecording()
     {
         frameCount = 0;
-        actualFrameCount = 0; // Reset the actual frame count
-        Time.captureFramerate = frameRate; // Set the capture frame rate
+        actualFrameCount = 0;
+        Time.captureFramerate = frameRate;
         UnityEngine.Debug.Log("Recording started.");
         EditorApplication.EnterPlaymode();
     }
 
     void OnApplicationQuit()
     {
+        HideFrameFiles();
         if (exportAsMP4)
-        {
-            ExportToMP4();
+        {            
+            ExportToMP4();            
         }
-        if (!exportAsPNGSequence)
+        if (exportAsGIF)
         {
-            DeleteUnnecessaryFiles();
+            ExportToGIF();
         }
+        UnhideFrameFiles();
+        OpenOutputFolder();
+    }
+
+    void OpenOutputFolder()
+    {
+        #if UNITY_EDITOR_WIN
+            Process.Start("explorer.exe", outputFolder);
+        #elif UNITY_EDITOR_OSX
+            Process.Start("open", outputFolder);
+        #endif
     }
 
     void ExportToMP4()
     {
-        string ffmpegPath = "/usr/local/bin/ffmpeg"; // Ensure ffmpeg is installed and available at this path on macOS
-        string inputPattern = Path.Combine(outputFolder, $"{outputFolder}_frame_%d.png");
-        string outputFilePath = Path.Combine(outputFolder, $"{outputFolder}.mp4");
+        string ffmpegPath = "/usr/local/bin/ffmpeg";
+        string inputPattern = Path.Combine(outputFolder, "PNGSequence", $"{outputFolder}_frame_%d.png");
+        string outputFilePath = Path.Combine(outputFolder, $"_{outputFolder}.mp4");
 
         ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegPath)
         {
@@ -133,16 +143,99 @@ public class FrameRecorder : MonoBehaviour
         using (Process process = Process.Start(processStartInfo))
         {
             process.WaitForExit();
-            UnityEngine.Debug.Log("MP4 export completed.");
+            while (!File.Exists(outputFilePath))
+            {
+                System.Threading.Thread.Sleep(100); // Wait for 100 milliseconds before checking again
+            }
+            UnityEngine.Debug.Log($"MP4 export completed. Total frames: {actualFrameCount}, Total time: {actualFrameCount / (float)frameRate} seconds.");
+        }
+        if (exportAsMP4 && !exportAsPNGSequence)
+        {
+            DeleteFiles("PNGSequence", "*.png");
         }
     }
 
-    void DeleteUnnecessaryFiles()
+    void ExportToGIF()
     {
-        DirectoryInfo di = new DirectoryInfo(outputFolder);
-        foreach (FileInfo file in di.GetFiles("*.png"))
+        string ffmpegPath = "/usr/local/bin/ffmpeg";
+        string inputPattern = Path.Combine(outputFolder, "JPGSequence", $"{outputFolder}_frame_%d.jpg");
+        string outputFilePath = Path.Combine(outputFolder, $"_{outputFolder}.gif");
+
+        ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegPath)
         {
-            file.Delete();
+            //Arguments = $"-i \"{inputPattern}\" -vf \"fps={gifFrameRate},setpts=(1/({gifFrameRate}/10))*PTS\" -gifflags +transdiff \"{outputFilePath}\"",
+            Arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -vf \"fps={gifFrameRate}\" -gifflags +transdiff \"{outputFilePath}\"",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (Process process = Process.Start(processStartInfo))
+        {
+            process.WaitForExit();
+            while (!File.Exists(outputFilePath))
+            {
+                System.Threading.Thread.Sleep(100); // Wait for 100 milliseconds before checking again
+            }
+            UnityEngine.Debug.Log($"GIF export completed. Total frames: {actualFrameCount}, Total time: {actualFrameCount / (float)gifFrameRate} seconds.");
+        }
+
+        if (exportAsGIF && !exportAsJPGSequence)
+        {
+            DeleteFiles("JPGSequence", "*.jpg");
+        }
+    }
+
+    void CreateOutputFolder()
+    {
+        if (!Directory.Exists(outputFolder))
+        {
+            Directory.CreateDirectory(outputFolder);
+        }
+        else
+        {
+            DirectoryInfo di = new DirectoryInfo(outputFolder);
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+        }
+    }
+
+    void ConfigureCamera()
+    {
+        targetCamera.clearFlags = CameraClearFlags.SolidColor;
+        targetCamera.backgroundColor = backgroundColor;
+    }
+
+    void DeleteFiles(string subFolder, string pattern)
+    {
+        string[] files = Directory.GetFiles(Path.Combine(outputFolder, subFolder), pattern);
+        foreach (string file in files)
+        {
+            File.Delete(file);
+        }
+    }
+
+    void HideFrameFiles()
+    {
+        string[] files = Directory.GetFiles(Path.Combine(outputFolder, "PNGSequence"), "*.png");
+        foreach (string file in files)
+        {
+            File.SetAttributes(file, FileAttributes.Hidden);
+        }
+    }
+
+    void UnhideFrameFiles()
+    {
+        string[] files = Directory.GetFiles(Path.Combine(outputFolder, "PNGSequence"), "*.png");
+        foreach (string file in files)
+        {
+            File.SetAttributes(file, FileAttributes.Normal);
         }
     }
 }

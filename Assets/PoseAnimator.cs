@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEditor;
 
-[ExecuteInEditMode]
 public class PoseAnimator : MonoBehaviour
 {
     [SerializeField] private Transform[] handPoses;
-    
-    [SerializeField, Range(0, 0.7f)] public float[] durations; // Array of durations for each transition
+    [SerializeField, Range(0, 0.7f)] private float[] durations; // Array of durations for each transition
     
     private int currentPoseIndex = 0;
     private int targetPoseIndex = 1;
@@ -15,17 +13,32 @@ public class PoseAnimator : MonoBehaviour
     private Transform[] targetPoseHandJoints;
     private Transform[] visiblePoseHandJoints;
     private float elapsedTime = 0;
+    private float accumulatedTime = 0;
 
-    private float totalFrames30fps = 0;
-    private float totalFrames60fps = 0;
+    private float totalFrames = 0;
     private float totalTime = 0;
+
+    [SerializeField] private FrameRecorder frameRecorder;
+    private int frameRate = 0;
     
     private void Start()
     {
         UpdateCurrentPose(0);
         UpdateTargetPose(1);
         visiblePoseHandJoints = transform.GetComponentsInChildren<Transform>();       
-        CalculateTotalFramesAndTime();
+    }
+
+    private void OnValidate()
+    {
+        frameRate = frameRecorder.frameRate;
+        totalFrames = 0;       
+        totalTime = 0;        
+        foreach (var duration in durations)
+        {
+            totalFrames += Mathf.RoundToInt(duration * frameRate); // Convert duration to frame count at frameRate
+            totalTime += duration;
+        }
+        frameRecorder.endFrame = (int)totalFrames;
     }
     
     private void UpdateCurrentPose(int newPoseIndex)
@@ -47,7 +60,7 @@ public class PoseAnimator : MonoBehaviour
         var timeToUse = elapsedTime / duration;
 
         elapsedTime += Time.deltaTime;
-
+        accumulatedTime += Time.deltaTime;
         if (elapsedTime >= duration)
         {
             elapsedTime -= duration; // Reset elapsedTime for the next cycle
@@ -64,25 +77,11 @@ public class PoseAnimator : MonoBehaviour
                 visiblePoseHandJoints[i].localRotation = Quaternion.Slerp(currentPoseHandJoints[i].localRotation, targetPoseHandJoints[i].localRotation, timeToUse);
             }
         }
-    }
 
-    private void CalculateTotalFramesAndTime()
-    {
-        totalFrames30fps = 0;
-        totalFrames60fps = 0;
-        totalTime = 0;
-        
-        foreach (var duration in durations)
+        // Exit playmode when the total time has passed
+        if (accumulatedTime >= totalTime)
         {
-            totalFrames30fps += Mathf.RoundToInt(duration * 30); // Convert duration to frame count at 30fps
-            totalFrames60fps += Mathf.RoundToInt(duration * 60); // Convert duration to frame count at 60fps
-            totalTime += duration;
+            EditorApplication.ExitPlaymode();
         }
-    }
-
-    private void OnValidate()
-    {
-        CalculateTotalFramesAndTime();       
-        Debug.Log("Total frame count of the animation at 30fps: " + totalFrames30fps + ", at 60fps: " + totalFrames60fps + ", Total time of the animation in seconds: " + totalTime);
     }
 }
