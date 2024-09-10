@@ -8,6 +8,7 @@ public class FrameRecorder : MonoBehaviour
     [SerializeField] private Camera targetCamera; // The camera to capture frames from
     [SerializeField] private Color backgroundColor = new Color(0, 0, 0, 0); // Background color
     [SerializeField] private string outputFolder = "Frames"; // The folder to save the frames
+    [SerializeField] private bool openFolderAfterRecording = true; // Open the folder after recording
     [SerializeField] private int outputWidth = 1920; // The width of the output image
     [SerializeField] private int outputHeight = 1080; // The height of the output image
     public int frameRate = 30; // The frame rate for capturing frames
@@ -20,6 +21,7 @@ public class FrameRecorder : MonoBehaviour
 
     private int startFrame = 0; // The frame to start recording
     [HideInInspector] public int endFrame = 100; // The frame to stop recording
+    [HideInInspector] public bool isRecording = true;
     private int frameCount = 0;
     private int actualFrameCount = 0; // Counter for actual saved frames
      
@@ -30,7 +32,15 @@ public class FrameRecorder : MonoBehaviour
         {
             UnityEngine.Debug.LogError("GIF frame rate cannot be higher than the main frame rate.");
             return;
-        }        
+        }  
+        
+        if(!exportAsGIF && !exportAsJPGSequence && !exportAsMP4 && !exportAsPNGSequence)
+        {
+            isRecording = false;
+        }
+
+        outputFolder = Path.Combine("Recordings", outputFolder);
+
         CreateOutputFolder();
         ConfigureCamera();
         StartRecording();
@@ -62,25 +72,25 @@ public class FrameRecorder : MonoBehaviour
         if (exportAsJPGSequence || exportAsGIF)
         {
             bytes = texture.EncodeToJPG();
-            filePath = Path.Combine(outputFolder, "JPGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.jpg");
+            filePath = Path.Combine(outputFolder, "JPGSequence", $"{Path.GetFileName(outputFolder)}_frame_{actualFrameCount:D}.jpg");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         }        
         if (exportAsPNGSequence || exportAsMP4)
         {
             bytes = texture.EncodeToPNG();
-            filePath = Path.Combine(outputFolder, "PNGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.png");
+            filePath = Path.Combine(outputFolder, "PNGSequence", $"{Path.GetFileName(outputFolder)}_frame_{actualFrameCount:D}.png");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         } 
         if (exportAsJPGSequence && exportAsPNGSequence)
         {
             bytes = texture.EncodeToJPG();
-            filePath = Path.Combine(outputFolder, "JPGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.jpg");
+            filePath = Path.Combine(outputFolder, "JPGSequence", $"{Path.GetFileName(outputFolder)}_frame_{actualFrameCount:D}.jpg");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
             bytes = texture.EncodeToPNG();
-            filePath = Path.Combine(outputFolder, "PNGSequence", $"{outputFolder}_frame_{actualFrameCount:D}.png");
+            filePath = Path.Combine(outputFolder, "PNGSequence", $"{Path.GetFileName(outputFolder)}_frame_{actualFrameCount:D}.png");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         } 
@@ -100,21 +110,28 @@ public class FrameRecorder : MonoBehaviour
         Time.captureFramerate = frameRate;
         UnityEngine.Debug.Log("Recording started.");
         EditorApplication.EnterPlaymode();
+        Application.targetFrameRate = frameRate;
     }
 
     void OnApplicationQuit()
     {
-        HideFrameFiles();
-        if (exportAsMP4)
-        {            
-            ExportToMP4();            
-        }
-        if (exportAsGIF)
+        if (isRecording)
         {
-            ExportToGIF();
+            HideFrameFiles();
+            if (exportAsMP4)
+            {            
+                ExportToMP4();            
+            }
+            if (exportAsGIF)
+            {   
+                ExportToGIF();
+            }
+            UnhideFrameFiles();
+            if (openFolderAfterRecording)
+            {
+                OpenOutputFolder();
+            }
         }
-        UnhideFrameFiles();
-        OpenOutputFolder();
     }
 
     void OpenOutputFolder()
@@ -129,8 +146,8 @@ public class FrameRecorder : MonoBehaviour
     void ExportToMP4()
     {
         string ffmpegPath = "/usr/local/bin/ffmpeg";
-        string inputPattern = Path.Combine(outputFolder, "PNGSequence", $"{outputFolder}_frame_%d.png");
-        string outputFilePath = Path.Combine(outputFolder, $"_{outputFolder}.mp4");
+        string inputPattern = Path.Combine(outputFolder, "PNGSequence", $"{Path.GetFileName(outputFolder)}_frame_%d.png");
+        string outputFilePath = Path.Combine(outputFolder, $"_{Path.GetFileName(outputFolder)}.mp4");
 
         ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegPath)
         {
@@ -158,13 +175,13 @@ public class FrameRecorder : MonoBehaviour
     void ExportToGIF()
     {
         string ffmpegPath = "/usr/local/bin/ffmpeg";
-        string inputPattern = Path.Combine(outputFolder, "JPGSequence", $"{outputFolder}_frame_%d.jpg");
-        string outputFilePath = Path.Combine(outputFolder, $"_{outputFolder}.gif");
+        string inputPattern = Path.Combine(outputFolder, "JPGSequence", $"{Path.GetFileName(outputFolder)}_frame_%d.jpg");
+        string outputFilePath = Path.Combine(outputFolder, $"_{Path.GetFileName(outputFolder)}.gif");
 
         ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegPath)
         {
             //Arguments = $"-i \"{inputPattern}\" -vf \"fps={gifFrameRate},setpts=(1/({gifFrameRate}/10))*PTS\" -gifflags +transdiff \"{outputFilePath}\"",
-            Arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -vf \"fps={gifFrameRate}\" -gifflags +transdiff \"{outputFilePath}\"",
+            Arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -vf \"fps={gifFrameRate}\" \"{outputFilePath}\"",
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true
@@ -203,6 +220,7 @@ public class FrameRecorder : MonoBehaviour
             {
                 dir.Delete(true);
             }
+            di.Delete(true); // Delete the main output folder as well
         }
     }
 
@@ -214,28 +232,48 @@ public class FrameRecorder : MonoBehaviour
 
     void DeleteFiles(string subFolder, string pattern)
     {
-        string[] files = Directory.GetFiles(Path.Combine(outputFolder, subFolder), pattern);
-        foreach (string file in files)
+        string subFolderPath = Path.Combine(outputFolder, subFolder);
+        if (Directory.Exists(subFolderPath))
         {
-            File.Delete(file);
+            string[] files = Directory.GetFiles(subFolderPath, pattern);
+            foreach (string file in files)
+            {
+                File.Delete(file);
+            }
+            Directory.Delete(subFolderPath, true); // Delete the folder as well
         }
     }
-
     void HideFrameFiles()
     {
-        string[] files = Directory.GetFiles(Path.Combine(outputFolder, "PNGSequence"), "*.png");
-        foreach (string file in files)
+        string[] subFolders = { "PNGSequence", "JPGSequence" };
+        foreach (string subFolder in subFolders)
         {
-            File.SetAttributes(file, FileAttributes.Hidden);
+            string subFolderPath = Path.Combine(outputFolder, subFolder);
+            if (Directory.Exists(subFolderPath))
+            {
+                string[] files = Directory.GetFiles(subFolderPath, subFolder == "PNGSequence" ? "*.png" : "*.jpg");
+                foreach (string file in files)
+                {
+                    File.SetAttributes(file, FileAttributes.Hidden);
+                }
+            }
         }
     }
 
     void UnhideFrameFiles()
     {
-        string[] files = Directory.GetFiles(Path.Combine(outputFolder, "PNGSequence"), "*.png");
-        foreach (string file in files)
+        string[] subFolders = { "PNGSequence", "JPGSequence" };
+        foreach (string subFolder in subFolders)
         {
-            File.SetAttributes(file, FileAttributes.Normal);
+            string subFolderPath = Path.Combine(outputFolder, subFolder);
+            if (Directory.Exists(subFolderPath))
+            {
+                string[] files = Directory.GetFiles(subFolderPath, subFolder == "PNGSequence" ? "*.png" : "*.jpg");
+                foreach (string file in files)
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                }
+            }
         }
     }
 }

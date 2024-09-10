@@ -79,7 +79,7 @@ public class PoseAnimator : MonoBehaviour
         }
 
         // Exit playmode when the total time has passed
-        if (accumulatedTime >= totalTime)
+        if (accumulatedTime >= totalTime && frameRecorder.isRecording)
         {
             EditorApplication.ExitPlaymode();
         }
