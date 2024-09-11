@@ -9,8 +9,11 @@ public class FrameRecorder : MonoBehaviour
     [SerializeField] private Color backgroundColor = new Color(0, 0, 0, 0); // Background color
     [SerializeField] private string outputFolder = "Frames"; // The folder to save the frames
     [SerializeField] private bool openFolderAfterRecording = true; // Open the folder after recording
+    public bool isRecording = true;
     [SerializeField] private int outputWidth = 1920; // The width of the output image
     [SerializeField] private int outputHeight = 1080; // The height of the output image
+    [SerializeField] private OutputScale outputScale = OutputScale.x1; // Output scale
+    
     public int frameRate = 30; // The frame rate for capturing frames
     public int gifFrameRate = 10; // The frame rate for capturing frames
     [SerializeField] private bool exportAsMP4 = false; // Export as MP4
@@ -21,10 +24,17 @@ public class FrameRecorder : MonoBehaviour
 
     private int startFrame = 0; // The frame to start recording
     [HideInInspector] public int endFrame = 100; // The frame to stop recording
-    [HideInInspector] public bool isRecording = true;
+    
     private int frameCount = 0;
     private int actualFrameCount = 0; // Counter for actual saved frames
-     
+
+    public enum OutputScale
+    {
+        x1 = 1,
+        x2 = 2,
+        x3 = 3,
+        x4 = 4
+    }
 
     void Start()
     {
@@ -33,18 +43,11 @@ public class FrameRecorder : MonoBehaviour
             UnityEngine.Debug.LogError("GIF frame rate cannot be higher than the main frame rate.");
             return;
         }  
-        
-        if(!exportAsGIF && !exportAsJPGSequence && !exportAsMP4 && !exportAsPNGSequence)
-        {
-            isRecording = false;
-        }
 
         outputFolder = Path.Combine("Recordings", outputFolder);
-
         CreateOutputFolder();
         ConfigureCamera();
-        StartRecording();
-        
+        StartRecording();        
     }
 
     void LateUpdate()
@@ -58,7 +61,10 @@ public class FrameRecorder : MonoBehaviour
 
     void CaptureFrame()
     {
-        RenderTexture renderTexture = new RenderTexture(outputWidth, outputHeight, 24, RenderTextureFormat.ARGB32);
+        int scaledWidth = outputWidth * (int)outputScale;
+        int scaledHeight = outputHeight * (int)outputScale;
+
+        RenderTexture renderTexture = new RenderTexture(scaledWidth, scaledHeight, 24, RenderTextureFormat.ARGB32);
         targetCamera.targetTexture = renderTexture;
         targetCamera.Render();
 
