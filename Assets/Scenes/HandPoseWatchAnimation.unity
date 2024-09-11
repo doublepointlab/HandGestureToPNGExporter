@@ -13774,6 +13774,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: pixel_watch 3_porcelain (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4081425552438583842, guid: 085f3c54ce4ea45a097a0d854e4f3d01,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4081425552438583842, guid: 085f3c54ce4ea45a097a0d854e4f3d01,
+        type: 3}
+      propertyPath: m_WaitForFirstFrame
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7980060981956667940, guid: 085f3c54ce4ea45a097a0d854e4f3d01,
         type: 3}
       propertyPath: m_Camera
@@ -29432,7 +29442,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1673804268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40539,7 +40549,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &4008194803364542193
 MonoBehaviour:
   m_ObjectHideFlags: 0
