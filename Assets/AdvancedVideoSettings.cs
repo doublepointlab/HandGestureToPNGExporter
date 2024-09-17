@@ -1,24 +1,43 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
+
 [ExecuteInEditMode]
 public class AdvancedVideoSettings : MonoBehaviour
 {
     private VideoPlayer videoPlayer;
     private static bool isAnyVideoPlaying = false;
+    private VideoClip lastVideoClip;
 
     void Awake()
     {
         videoPlayer = GetComponent<VideoPlayer>();
+        lastVideoClip = videoPlayer.clip;
+        RefreshVideo();
     }
 
     void Update()
     {
-        if (videoPlayer != null && !videoPlayer.isPlaying && !isAnyVideoPlaying)
+        if (videoPlayer == null) return;
+
+        RefreshVideo();
+
+        if (!videoPlayer.isPlaying && !isAnyVideoPlaying)
         {
+            videoPlayer.frame = 0; // Ensure the video awakes on the first frame
             videoPlayer.Play();
             isAnyVideoPlaying = true;
+        }
+    }
+
+    private void RefreshVideo()
+    {
+        if (videoPlayer.clip != lastVideoClip)
+        {
+            // Video has changed, refresh it
+            lastVideoClip = videoPlayer.clip;
+            videoPlayer.Stop();
+            videoPlayer.Prepare();
+            isAnyVideoPlaying = false;
         }
     }
 
@@ -29,5 +48,16 @@ public class AdvancedVideoSettings : MonoBehaviour
             videoPlayer.Pause();
             isAnyVideoPlaying = false;
         }
+    }
+
+    void OnValidate()
+    {
+        // This will ensure the video is refreshed in the editor when changes are made
+        if (videoPlayer == null || videoPlayer.clip == lastVideoClip) return;
+
+        lastVideoClip = videoPlayer.clip;
+        videoPlayer.Stop();
+        videoPlayer.Prepare();
+        isAnyVideoPlaying = false;
     }
 }

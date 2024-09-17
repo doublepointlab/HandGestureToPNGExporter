@@ -4,7 +4,7 @@ using UnityEditor;
 public class PoseAnimator : MonoBehaviour
 {
     [SerializeField] private Transform[] handPoses;
-    [SerializeField, Range(0, 0.7f)] private float[] durations; // Array of durations for each transition
+    [Range(0, 2)] public float[] durations; // Array of durations for each transition
     
     private int currentPoseIndex = 0;
     private int targetPoseIndex = 1;
@@ -20,6 +20,7 @@ public class PoseAnimator : MonoBehaviour
 
     [SerializeField] private FrameRecorder frameRecorder;
     private int frameRate = 0;
+    [HideInInspector] public int animationCount = 0;
     
     private void Start()
     {
@@ -56,17 +57,20 @@ public class PoseAnimator : MonoBehaviour
 
     private void Update()
     {
-        var duration = durations[currentPoseIndex];
-        var timeToUse = elapsedTime / duration;
+        int totalFramesForCurrentPose = Mathf.RoundToInt(durations[currentPoseIndex] * frameRate);
+        int currentFrame = Mathf.RoundToInt(elapsedTime * frameRate);
 
         elapsedTime += Time.deltaTime;
         accumulatedTime += Time.deltaTime;
-        if (elapsedTime >= duration)
+
+        if (currentFrame >= totalFramesForCurrentPose)
         {
-            elapsedTime -= duration; // Reset elapsedTime for the next cycle
+            elapsedTime -= durations[currentPoseIndex]; // Reset elapsedTime for the next cycle
             UpdateCurrentPose(targetPoseIndex); // Update current pose to the target pose
             UpdateTargetPose((targetPoseIndex + 1) % handPoses.Length); // Set the next target pose
         }
+
+        float timeToUse = (float)currentFrame / totalFramesForCurrentPose;
 
         // Skip the first and last frame of interpolation
         if (timeToUse < 0.98f)
@@ -79,9 +83,15 @@ public class PoseAnimator : MonoBehaviour
         }
 
         // Exit playmode when the total time has passed
-        if (accumulatedTime >= totalTime && frameRecorder.isRecording)
+        if (accumulatedTime >= totalTime)
         {
-            EditorApplication.ExitPlaymode();
+            animationCount++;
+            if (frameRecorder.isRecording)
+            {
+                EditorApplication.ExitPlaymode();
+                UnityEngine.Debug.Log("Recording finished.");
+            }
+            accumulatedTime = 0; // Reset accumulatedTime after completing all durations
         }
     }
 }

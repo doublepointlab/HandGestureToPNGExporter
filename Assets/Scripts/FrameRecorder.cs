@@ -2,32 +2,50 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Diagnostics;
+using System.Collections;
 
 public class FrameRecorder : MonoBehaviour
 {
     [SerializeField] private Camera targetCamera; // The camera to capture frames from
-    [SerializeField] private Color backgroundColor = new Color(0, 0, 0, 0); // Background color
-    [SerializeField] private string outputFolder = "Frames"; // The folder to save the frames
-    [SerializeField] private bool openFolderAfterRecording = true; // Open the folder after recording
-    public bool isRecording = true;
-    [SerializeField] private int outputWidth = 1920; // The width of the output image
-    [SerializeField] private int outputHeight = 1080; // The height of the output image
-    [SerializeField] private OutputScale outputScale = OutputScale.x1; // Output scale
-    
-    public int frameRate = 30; // The frame rate for capturing frames
-    public int gifFrameRate = 10; // The frame rate for capturing frames
+    [SerializeField] private FadeInOut fadeInOut; // Reference to FadeInOut script
+    [SerializeField] private MoreSettings moreSettings = new MoreSettings();
+
     [SerializeField] private bool exportAsMP4 = false; // Export as MP4
     [SerializeField] private bool exportAsPNGSequence = true; // Export as PNG Sequence
     [SerializeField] private bool exportAsJPGSequence = false; // Export as JPG Sequence
     [SerializeField] private bool exportAsGIF = false; // Export as GIF
-    [SerializeField] private int[] excludedFrames = { 24, 53, 88 }; // Frames to exclude from export
+    [SerializeField] private bool isFadingIn = false; // Flag to check if fading in
+    [SerializeField] private bool isFadingOut = false; // Flag to check if fading out
 
-    private int startFrame = 0; // The frame to start recording
+    public bool isRecording = true; // Flag to check if recording is in progress
+    [HideInInspector] public int startFrame = 0; // The frame to start recording
     [HideInInspector] public int endFrame = 100; // The frame to stop recording
-    
-    private int frameCount = 0;
-    private int actualFrameCount = 0; // Counter for actual saved frames
 
+    [SerializeField] private string outputFolder; // The folder to save the frames
+    private int frameCount = 0; // Counter for frames
+    private int actualFrameCount = 0; // Counter for actual saved frames
+    private float fadeDuration = 1.0f; // Duration of fade in/out
+    private int frameInterval = 1; // Frame interval for continuous recording
+
+    [HideInInspector] private Color backgroundColor; // Background color
+    [HideInInspector] private int outputWidth; // The width of the output image
+    [HideInInspector] private int outputHeight; // The height of the output image
+    [HideInInspector] private OutputScale outputScale; // Output scale
+    [HideInInspector] public int frameRate; // The frame rate for capturing frames
+    [HideInInspector] private int gifFrameRate; // The frame rate for capturing frames for GIF
+
+    [System.Serializable]
+    public class MoreSettings
+    {
+        public Color _backgroundColor = new Color(0, 0, 0, 0); // Background color
+        public int _outputWidth = 1280; // The width of the output image
+        public int _outputHeight = 720; // The height of the output image
+        public OutputScale _outputScale = OutputScale.x2; // Output scale
+        public int _frameRate = 60; // The frame rate for capturing frames
+        public int _gifFrameRate = 30; // The frame rate for capturing frames for GIF
+    }
+
+    // Enum for output scale
     public enum OutputScale
     {
         x1 = 1,
@@ -36,38 +54,84 @@ public class FrameRecorder : MonoBehaviour
         x4 = 4
     }
 
+    void Awake()
+    {
+        backgroundColor = moreSettings._backgroundColor;
+        outputWidth = moreSettings._outputWidth;
+        outputHeight = moreSettings._outputHeight;
+        outputScale = moreSettings._outputScale;
+        frameRate = moreSettings._frameRate;
+        gifFrameRate = moreSettings._gifFrameRate;
+    }
     void Start()
     {
+        // Ensure GIF frame rate is not higher than the main frame rate
         if (gifFrameRate > frameRate)
         {
             UnityEngine.Debug.LogError("GIF frame rate cannot be higher than the main frame rate.");
             return;
-        }  
+        }     
+        fadeDuration = fadeInOut.fadeDuration; // Set the fade duration
+        frameInterval = endFrame - startFrame;
 
-        outputFolder = Path.Combine("Recordings", outputFolder);
-        CreateOutputFolder();
-        ConfigureCamera();
-        StartRecording();        
+        if(isFadingIn)
+        {
+            fadeInOut.TriggerFadeIn();
+        }
+        
+        if(isRecording){
+            UnityEngine.Debug.Log("Recording started.");
+        }
+        else{
+            UnityEngine.Debug.Log("Not recording. Set isRecording to true if you want to record.");  
+        }
+        outputFolder = Path.Combine("Recordings", outputFolder ?? string.Empty); // Set the output folder path
+        CreateOutputFolder(); // Create the output folder
+        ConfigureCamera(); // Configure the camera settings
+        StartRecording(); // Start the recording process
+
     }
 
     void LateUpdate()
     {
-        if (frameCount >= startFrame && frameCount <= endFrame && System.Array.IndexOf(excludedFrames, frameCount) == -1)
+        // Capture frame if within the recording range
+        if (isRecording && frameCount >= startFrame && frameCount <= endFrame)
         {
             CaptureFrame();
         }
         frameCount++;
+        // Update frame range for continuous playback
+        if (frameCount > endFrame)
+        {            
+            startFrame = endFrame + 1;
+            endFrame += frameInterval; 
+            frameCount = startFrame;
+        }
+
+        // Trigger fade out if required
+        if (isFadingOut && frameCount == endFrame - (int)((fadeDuration + 1) * frameRate))
+        {
+            fadeInOut.TriggerFadeOut();
+        }
+        if (isFadingIn && frameCount == startFrame) 
+        {
+            fadeInOut.TriggerFadeIn();
+        }
     }
 
+
+    // Capture a single frame
     void CaptureFrame()
     {
         int scaledWidth = outputWidth * (int)outputScale;
         int scaledHeight = outputHeight * (int)outputScale;
 
+        // Create a render texture and set it as the target for the camera
         RenderTexture renderTexture = new RenderTexture(scaledWidth, scaledHeight, 24, RenderTextureFormat.ARGB32);
         targetCamera.targetTexture = renderTexture;
         targetCamera.Render();
 
+        // Read the pixels from the render texture into a texture
         Texture2D texture = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
         RenderTexture.active = renderTexture;
         texture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
@@ -75,6 +139,8 @@ public class FrameRecorder : MonoBehaviour
 
         byte[] bytes = null;
         string filePath = string.Empty;
+
+        // Encode and save the frame as JPG if required
         if (exportAsJPGSequence || exportAsGIF)
         {
             bytes = texture.EncodeToJPG();
@@ -82,6 +148,8 @@ public class FrameRecorder : MonoBehaviour
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         }        
+
+        // Encode and save the frame as PNG if required
         if (exportAsPNGSequence || exportAsMP4)
         {
             bytes = texture.EncodeToPNG();
@@ -89,6 +157,8 @@ public class FrameRecorder : MonoBehaviour
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         } 
+
+        // Encode and save the frame as both JPG and PNG if required
         if (exportAsJPGSequence && exportAsPNGSequence)
         {
             bytes = texture.EncodeToJPG();
@@ -101,45 +171,44 @@ public class FrameRecorder : MonoBehaviour
             File.WriteAllBytes(filePath, bytes);
         } 
 
+        // Clean up
         targetCamera.targetTexture = null;
         RenderTexture.active = null;
         Destroy(renderTexture);
         Destroy(texture);
 
-        actualFrameCount++;
+        actualFrameCount++;        
     }
 
+    // Start the recording process
     public void StartRecording()
     {
         frameCount = 0;
         actualFrameCount = 0;
-        Time.captureFramerate = frameRate;
-        UnityEngine.Debug.Log("Recording started.");
-        EditorApplication.EnterPlaymode();
+        Time.captureFramerate = frameRate;        
         Application.targetFrameRate = frameRate;
     }
 
+    // Handle application quit event
     void OnApplicationQuit()
     {
         if (isRecording)
         {
-            HideFrameFiles();
+            HideFrameFiles(); // Hide frame files
             if (exportAsMP4)
             {            
-                ExportToMP4();            
+                ExportToMP4(); // Export to MP4
             }
             if (exportAsGIF)
             {   
-                ExportToGIF();
+                ExportToGIF(); // Export to GIF
             }
-            UnhideFrameFiles();
-            if (openFolderAfterRecording)
-            {
-                OpenOutputFolder();
-            }
+            UnhideFrameFiles(); // Unhide frame files
+            OpenOutputFolder(); // Open the output folder
         }
     }
 
+    // Open the output folder in the file explorer
     void OpenOutputFolder()
     {
         #if UNITY_EDITOR_WIN
@@ -149,11 +218,12 @@ public class FrameRecorder : MonoBehaviour
         #endif
     }
 
+    // Export the recorded frames to MP4
     void ExportToMP4()
     {
         string ffmpegPath = "/usr/local/bin/ffmpeg";
         string inputPattern = Path.Combine(outputFolder, "PNGSequence", $"{Path.GetFileName(outputFolder)}_frame_%d.png");
-        string outputFilePath = Path.Combine(outputFolder, $"_{Path.GetFileName(outputFolder)}.mp4");
+        string outputFilePath = Path.Combine(outputFolder, $"{Path.GetFileName(outputFolder)}.mp4");
 
         ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegPath)
         {
@@ -174,19 +244,19 @@ public class FrameRecorder : MonoBehaviour
         }
         if (exportAsMP4 && !exportAsPNGSequence)
         {
-            DeleteFiles("PNGSequence", "*.png");
+            DeleteFiles("PNGSequence", "*.png"); // Delete PNG files if not required
         }
     }
 
+    // Export the recorded frames to GIF
     void ExportToGIF()
     {
         string ffmpegPath = "/usr/local/bin/ffmpeg";
         string inputPattern = Path.Combine(outputFolder, "JPGSequence", $"{Path.GetFileName(outputFolder)}_frame_%d.jpg");
-        string outputFilePath = Path.Combine(outputFolder, $"_{Path.GetFileName(outputFolder)}.gif");
+        string outputFilePath = Path.Combine(outputFolder, $"{Path.GetFileName(outputFolder)}.gif");
 
         ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegPath)
         {
-            //Arguments = $"-i \"{inputPattern}\" -vf \"fps={gifFrameRate},setpts=(1/({gifFrameRate}/10))*PTS\" -gifflags +transdiff \"{outputFilePath}\"",
             Arguments = $"-framerate {frameRate} -i \"{inputPattern}\" -vf \"fps={gifFrameRate}\" \"{outputFilePath}\"",
             RedirectStandardOutput = true,
             UseShellExecute = false,
@@ -205,10 +275,11 @@ public class FrameRecorder : MonoBehaviour
 
         if (exportAsGIF && !exportAsJPGSequence)
         {
-            DeleteFiles("JPGSequence", "*.jpg");
+            DeleteFiles("JPGSequence", "*.jpg"); // Delete JPG files if not required
         }
     }
 
+    // Create the output folder
     void CreateOutputFolder()
     {
         if (!Directory.Exists(outputFolder))
@@ -217,6 +288,7 @@ public class FrameRecorder : MonoBehaviour
         }
         else
         {
+            // Delete existing files and directories in the output folder
             DirectoryInfo di = new DirectoryInfo(outputFolder);
             foreach (FileInfo file in di.GetFiles())
             {
@@ -230,12 +302,14 @@ public class FrameRecorder : MonoBehaviour
         }
     }
 
+    // Configure the camera settings
     void ConfigureCamera()
     {
         targetCamera.clearFlags = CameraClearFlags.SolidColor;
         targetCamera.backgroundColor = backgroundColor;
     }
 
+    // Delete files in a subfolder with a specific pattern
     void DeleteFiles(string subFolder, string pattern)
     {
         string subFolderPath = Path.Combine(outputFolder, subFolder);
@@ -249,6 +323,8 @@ public class FrameRecorder : MonoBehaviour
             Directory.Delete(subFolderPath, true); // Delete the folder as well
         }
     }
+
+    // Hide frame files by setting their attributes to hidden
     void HideFrameFiles()
     {
         string[] subFolders = { "PNGSequence", "JPGSequence" };
@@ -266,6 +342,7 @@ public class FrameRecorder : MonoBehaviour
         }
     }
 
+    // Unhide frame files by setting their attributes to normal
     void UnhideFrameFiles()
     {
         string[] subFolders = { "PNGSequence", "JPGSequence" };
