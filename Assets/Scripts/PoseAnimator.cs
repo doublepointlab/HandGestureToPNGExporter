@@ -24,16 +24,21 @@ public class PoseAnimator : MonoBehaviour
     
     private void Start()
     {
+        if (handPoses.Length != durations.Length)
+        {
+            Debug.LogError($"The amount of handPoses and durations must be identical in: {transform.parent.gameObject.name}");
+        }
+        
         UpdateCurrentPose(0);
         UpdateTargetPose(1);
         visiblePoseHandJoints = transform.GetComponentsInChildren<Transform>();       
     }
 
     private void OnValidate()
-    {
-        frameRate = frameRecorder.frameRate;
+    {   
+        frameRate = frameRecorder.frameRate;        
         totalFrames = 0;       
-        totalTime = 0;        
+        totalTime = 0;       
         foreach (var duration in durations)
         {
             totalFrames += Mathf.RoundToInt(duration * frameRate); // Convert duration to frame count at frameRate
@@ -57,6 +62,7 @@ public class PoseAnimator : MonoBehaviour
 
     private void Update()
     {
+
         int totalFramesForCurrentPose = Mathf.RoundToInt(durations[currentPoseIndex] * frameRate);
         int currentFrame = Mathf.RoundToInt(elapsedTime * frameRate);
 
@@ -94,4 +100,5 @@ public class PoseAnimator : MonoBehaviour
             accumulatedTime = 0; // Reset accumulatedTime after completing all durations
         }
     }
+
 }

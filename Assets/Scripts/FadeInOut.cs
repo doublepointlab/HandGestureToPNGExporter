@@ -11,7 +11,7 @@ using System.Collections;
 public class FadeInOut : MonoBehaviour
 {
     [SerializeField] private Image image;
-    [SerializeField] public float fadeDuration = 1.0f;
+    [SerializeField] public static float fadeDuration = 1.0f;
     private readonly Color black = Color.black;
     private readonly Color transparent = new Color(0, 0, 0, 0); // Black with alpha 0
     public void TriggerFadeIn()

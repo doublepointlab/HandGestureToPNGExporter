@@ -31,14 +31,14 @@ public class AdvancedVideoSettings : MonoBehaviour
 
     private void RefreshVideo()
     {
-        if (videoPlayer.clip != lastVideoClip)
-        {
-            // Video has changed, refresh it
-            lastVideoClip = videoPlayer.clip;
-            videoPlayer.Stop();
-            videoPlayer.Prepare();
-            isAnyVideoPlaying = false;
-        }
+        if (videoPlayer.clip == lastVideoClip) return;
+
+        // Video has changed, refresh it
+        lastVideoClip = videoPlayer.clip;
+        videoPlayer.Stop();
+        videoPlayer.Prepare();
+        videoPlayer.frame = 0; // Start on frame 0
+        isAnyVideoPlaying = false;
     }
 
     void OnDisable()
