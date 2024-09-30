@@ -5261,7 +5261,12 @@ PrefabInstance:
     - target: {fileID: 367436180039863720, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
       propertyPath: isFadingIn
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 367436180039863720, guid: eabbf507aaf3f432aa04a37ca5047927,
+        type: 3}
+      propertyPath: outputName
+      value: Doubletap
       objectReference: {fileID: 0}
     - target: {fileID: 367436180039863720, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
@@ -5276,7 +5281,7 @@ PrefabInstance:
     - target: {fileID: 367436180039863720, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
       propertyPath: isFadingOut
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 367436180039863720, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
@@ -5312,6 +5317,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
+        type: 3}
+      propertyPath: handPoses.Array.size
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
@@ -5361,6 +5371,11 @@ PrefabInstance:
     - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
       propertyPath: handPoses.Array.data[9]
+      value: 
+      objectReference: {fileID: 1429055964}
+    - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
+        type: 3}
+      propertyPath: handPoses.Array.data[10]
       value: 
       objectReference: {fileID: 1429055964}
     - target: {fileID: 6075745385729780535, guid: eabbf507aaf3f432aa04a37ca5047927,
@@ -14534,7 +14549,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   image: {fileID: 775998835}
-  fadeDuration: 0.3
 --- !u!114 &775998835
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41326,7 +41340,17 @@ PrefabInstance:
     - target: {fileID: 7883515695651249725, guid: 3c4dc1a20985f42a7b4d9a1eceae3483,
         type: 3}
       propertyPath: isFadingIn
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7883515695651249725, guid: 3c4dc1a20985f42a7b4d9a1eceae3483,
+        type: 3}
+      propertyPath: outputName
+      value: LongTap
+      objectReference: {fileID: 0}
+    - target: {fileID: 7883515695651249725, guid: 3c4dc1a20985f42a7b4d9a1eceae3483,
+        type: 3}
+      propertyPath: isFadingOut
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7883515695651249725, guid: 3c4dc1a20985f42a7b4d9a1eceae3483,
         type: 3}
@@ -41693,6 +41717,21 @@ PrefabInstance:
       propertyPath: fadeInOut
       value: 
       objectReference: {fileID: 775998834}
+    - target: {fileID: 7366556443387584370, guid: 76644adf324b84d0b986d132861d6bf0,
+        type: 3}
+      propertyPath: isFadingIn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7366556443387584370, guid: 76644adf324b84d0b986d132861d6bf0,
+        type: 3}
+      propertyPath: outputName
+      value: PalmUpTap
+      objectReference: {fileID: 0}
+    - target: {fileID: 7366556443387584370, guid: 76644adf324b84d0b986d132861d6bf0,
+        type: 3}
+      propertyPath: isFadingOut
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7366556443387584370, guid: 76644adf324b84d0b986d132861d6bf0,
         type: 3}
       propertyPath: targetCamera
@@ -42697,7 +42736,7 @@ PrefabInstance:
     - target: {fileID: 6583002312108457499, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6661893218446495689, guid: dd44725887751420db72919372a7fe49,
         type: 3}
@@ -42786,6 +42825,16 @@ PrefabInstance:
       objectReference: {fileID: 775998834}
     - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
+      propertyPath: isFadingIn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: outputName
+      value: PalmUpDoubleTap
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
       propertyPath: exportAsGIF
       value: 1
       objectReference: {fileID: 0}
@@ -42793,6 +42842,11 @@ PrefabInstance:
         type: 3}
       propertyPath: exportAsMP4
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: isFadingOut
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
@@ -42956,6 +43010,16 @@ PrefabInstance:
       objectReference: {fileID: 775998834}
     - target: {fileID: 5589193679966965313, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
         type: 3}
+      propertyPath: isFadingIn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5589193679966965313, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
+        type: 3}
+      propertyPath: outputName
+      value: Shake
+      objectReference: {fileID: 0}
+    - target: {fileID: 5589193679966965313, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
+        type: 3}
       propertyPath: exportAsGIF
       value: 1
       objectReference: {fileID: 0}
@@ -42963,6 +43027,11 @@ PrefabInstance:
         type: 3}
       propertyPath: exportAsMP4
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5589193679966965313, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
+        type: 3}
+      propertyPath: isFadingOut
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5589193679966965313, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
         type: 3}
@@ -44085,6 +44154,21 @@ PrefabInstance:
       objectReference: {fileID: 775998834}
     - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
+      propertyPath: isFadingIn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
+        type: 3}
+      propertyPath: outputName
+      value: Tap
+      objectReference: {fileID: 0}
+    - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
+        type: 3}
+      propertyPath: isFadingOut
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
+        type: 3}
       propertyPath: targetCamera
       value: 
       objectReference: {fileID: 632429410}
@@ -44449,7 +44533,7 @@ PrefabInstance:
     - target: {fileID: 4918678468886330099, guid: 09a25528c3de44670b95850b93c57988,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6225997558116057606, guid: 09a25528c3de44670b95850b93c57988,
         type: 3}
@@ -44463,6 +44547,16 @@ PrefabInstance:
       objectReference: {fileID: 775998834}
     - target: {fileID: 6225997558116057606, guid: 09a25528c3de44670b95850b93c57988,
         type: 3}
+      propertyPath: isFadingIn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6225997558116057606, guid: 09a25528c3de44670b95850b93c57988,
+        type: 3}
+      propertyPath: outputName
+      value: Wiggle
+      objectReference: {fileID: 0}
+    - target: {fileID: 6225997558116057606, guid: 09a25528c3de44670b95850b93c57988,
+        type: 3}
       propertyPath: exportAsGIF
       value: 1
       objectReference: {fileID: 0}
@@ -44470,6 +44564,11 @@ PrefabInstance:
         type: 3}
       propertyPath: exportAsMP4
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6225997558116057606, guid: 09a25528c3de44670b95850b93c57988,
+        type: 3}
+      propertyPath: isFadingOut
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6225997558116057606, guid: 09a25528c3de44670b95850b93c57988,
         type: 3}
