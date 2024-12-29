@@ -57507,32 +57507,62 @@ PrefabInstance:
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: animationCount
-      value: 45
+      value: 103
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.size
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.size
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[1]
+      value: 0.579
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[2]
+      value: 0.139
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[3]
+      value: 0.139
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: durations.Array.data[4]
-      value: 0.091
+      value: 0.081
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: durations.Array.data[5]
-      value: 0.081
+      value: 0.129
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: durations.Array.data[6]
-      value: 0.081
+      value: 0.033
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: durations.Array.data[7]
-      value: 0.11
+      value: 0.139
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: durations.Array.data[8]
-      value: 0.091
+      value: 0.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[9]
+      value: 0.158
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
@@ -57553,7 +57583,7 @@ PrefabInstance:
         type: 3}
       propertyPath: handPoses.Array.data[3]
       value: 
-      objectReference: {fileID: 5412795684914736205}
+      objectReference: {fileID: 682336482}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: handPoses.Array.data[4]
@@ -57563,7 +57593,7 @@ PrefabInstance:
         type: 3}
       propertyPath: handPoses.Array.data[5]
       value: 
-      objectReference: {fileID: 682336482}
+      objectReference: {fileID: 5412795684914736205}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: handPoses.Array.data[6]
@@ -57573,7 +57603,7 @@ PrefabInstance:
         type: 3}
       propertyPath: handPoses.Array.data[7]
       value: 
-      objectReference: {fileID: 5412795684914736205}
+      objectReference: {fileID: 682336482}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: handPoses.Array.data[8]
@@ -57583,17 +57613,27 @@ PrefabInstance:
         type: 3}
       propertyPath: handPoses.Array.data[9]
       value: 
-      objectReference: {fileID: 682336482}
+      objectReference: {fileID: 5412795684914736205}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[10]
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[11]
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: durations.Array.data[12]
-      value: 0.03
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: handPoses.Array.data[10]
       value: 
-      objectReference: {fileID: 1879235561}
+      objectReference: {fileID: 682336482}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: handPoses.Array.data[11]
@@ -57607,7 +57647,7 @@ PrefabInstance:
     - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: endFrame
-      value: 224
+      value: 252
       objectReference: {fileID: 0}
     - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
