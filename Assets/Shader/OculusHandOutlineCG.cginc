@@ -55,8 +55,27 @@ OutlineVertexOutput outlineVertex(OutlineVertexInput v) {
   o.texcoord1 = v.texcoord1;
   half4 maskPixelColor = tex2Dlod(_FingerGlowMask, v.texcoord);
   o.color.rgb = _OutlineColor;
-  o.color.a = saturate(maskPixelColor.a + _WristFade) * _OutlineColor.a *
-      _OutlineOpacity;
+  
+  // Calculate rotated fade for wrist using local coordinates
+  float3 localPos = v.vertex.xyz; // Use local vertex position instead of world position
+  
+  // Rotation in XY plane
+  float wristRotationAngleXY = 1.8; // Controls tilt in XY plane
+  float2x2 wristRotationMatrixXY = float2x2(cos(wristRotationAngleXY), -sin(wristRotationAngleXY),
+                                           sin(wristRotationAngleXY), cos(wristRotationAngleXY));
+  float2 rotatedWristPos = mul(wristRotationMatrixXY, float2(localPos.y, localPos.x));
+  
+  // Fade control values:
+  // - Smaller difference between start/end = sharper transition
+  // - Larger difference = more gradual transition
+  float fadeWidth = 0.05;  // Total width of fade zone
+  float wristFadeStart = 0.0;  // Start fade right at the wrist
+  float wristFadeEnd = wristFadeStart + fadeWidth;
+  float wristFadeOffset = 0.05;
+
+  // Start at middle when _WristFade is 0, fade almost completely at 1
+  float wristFadeAmount = _WristFade > 0 ? smoothstep(wristFadeStart, wristFadeEnd, rotatedWristPos.x + (_WristFade*-0.17+wristFadeOffset)) : 1;
+  o.color.a = saturate(maskPixelColor.a + 1) * wristFadeAmount * _OutlineColor.a * _OutlineOpacity;
   return o;
 }
 

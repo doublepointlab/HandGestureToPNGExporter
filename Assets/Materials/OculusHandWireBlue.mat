@@ -96,7 +96,7 @@ Material:
     - _Fresnel: 1
     - _FresnelOpacity: 0
     - _FresnelOpacityPower: 3.66
-    - _FresnelPower: 4.76
+    - _FresnelPower: 4.23
     - _GenerateGlow: 0
     - _GlobalOpacity: 0.714
     - _GlossMapScale: 1
@@ -114,10 +114,10 @@ Material:
     - _OutlineGlowIntensity: 1
     - _OutlineGradient: 0
     - _OutlineIntensity: 1
-    - _OutlineOpacity: 1
+    - _OutlineOpacity: 0.564
     - _OutlinePinchRange: 0.15
     - _OutlineSphereHardness: 0.15
-    - _OutlineWidth: 0
+    - _OutlineWidth: 0.00068
     - _Parallax: 0.02
     - _PinchIntensity: 0
     - _PinchRange: 0.03
@@ -130,7 +130,8 @@ Material:
     - _ThumbGlowValue: 0
     - _UVSec: 0
     - _UseTexture: 0
-    - _WristFade: -0.15
+    - _WristFade: 0.301
+    - _WristOffset: 0.011
     - _WristRange: 0.06
     - _WristSmoother: 0.85
     - _ZWrite: 1

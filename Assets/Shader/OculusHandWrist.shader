@@ -37,7 +37,7 @@ Shader "Interaction/OculusHandWrist"
         _OutlineOpacity("Outline Opacity", Range(0 , 1)) = 0.4
 
         [Header(Wrist)]
-        _WristFade("Wrist Fade", Range(-1 , 1)) = 0.5
+        _WristFade("Wrist Fade", Range(0 , 1)) = 0.5
 
         [Header(Finger Glow)]
         _FingerGlowMask("Finger Glow Mask", 2D) = "white" {}

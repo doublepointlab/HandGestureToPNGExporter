@@ -4,7 +4,7 @@ using UnityEditor;
 public class PoseAnimator : MonoBehaviour
 {
     [SerializeField] private Transform[] handPoses;
-    [Range(0, 2)] public float[] durations; // Array of durations for each transition
+    [Range(0, 0.25f)] public float[] durations; // Array of durations for each transition
     
     private int currentPoseIndex = 0;
     private int targetPoseIndex = 1;
