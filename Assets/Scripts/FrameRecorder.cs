@@ -81,7 +81,7 @@ public class FrameRecorder : MonoBehaviour
             if(isFadingIn)
             {
                 fadeInOut.TriggerFadeIn();
-            }     
+            }
         }
         else{
             UnityEngine.Debug.Log("Not recording. Fade in/out is off. Set isRecording to true if you want to record.");  
@@ -125,14 +125,14 @@ public class FrameRecorder : MonoBehaviour
             }
 
             // Trigger fade out if required
-            if (isFadingOut && frameCount == (endFrame - (int)((fadeDuration+1) * frameRate)))
+            if (isFadingOut && frameCount == (endFrame - (int)((fadeDuration) * frameRate)))
             {
                 fadeInOut.TriggerFadeOut();
             }
             if (isFadingIn && frameCount == startFrame) 
             {
                 fadeInOut.TriggerFadeIn();
-            }
+            }         
         }
     }
 

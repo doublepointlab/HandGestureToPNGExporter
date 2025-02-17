@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: OculusHandWireOutline
+  m_Name: OutlineShaddow
   m_Shader: {fileID: 4800000, guid: 54169b8cfcd9f48d2ab58a00b86f86b9, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -96,7 +96,7 @@ Material:
     - _Fresnel: 1
     - _FresnelOpacity: 0
     - _FresnelOpacityPower: 3.66
-    - _FresnelPower: 0
+    - _FresnelPower: 5
     - _GenerateGlow: 0
     - _GlobalOpacity: 0.714
     - _GlossMapScale: 1
@@ -108,7 +108,7 @@ Material:
     - _Mode: 0
     - _OcclusionEnabled: 0
     - _OcclusionStrength: 1
-    - _Opacity: 0
+    - _Opacity: 1
     - _OutlineFresnelOpacity: 0
     - _OutlineFresnelPower: 2.462451
     - _OutlineGlowIntensity: 1
@@ -117,7 +117,7 @@ Material:
     - _OutlineOpacity: 1
     - _OutlinePinchRange: 0.15
     - _OutlineSphereHardness: 0.15
-    - _OutlineWidth: 0.00044
+    - _OutlineWidth: 0.00029
     - _Parallax: 0.02
     - _PinchIntensity: 0
     - _PinchRange: 0.03
@@ -130,7 +130,7 @@ Material:
     - _ThumbGlowValue: 0
     - _UVSec: 0
     - _UseTexture: 0
-    - _WristFade: -0.15
+    - _WristFade: 0.382
     - _WristRange: 0.06
     - _WristSmoother: 0.85
     - _ZWrite: 1
@@ -138,7 +138,7 @@ Material:
     m_Colors:
     - _ClipPos: {r: 10.96, g: 7.52, b: 12.71, a: -4.93}
     - _Color: {r: 1, g: 0.44811308, b: 0.44811308, a: 1}
-    - _ColorBottom: {r: 0, g: 0, b: 0, a: 0}
+    - _ColorBottom: {r: 1, g: 1, b: 1, a: 1}
     - _ColorPrimary: {r: 1, g: 0.4481132, b: 0.4481132, a: 1}
     - _ColorSecondary: {r: 1, g: 0.8443396, b: 0.8443396, a: 1}
     - _ColorTop: {r: 0, g: 0, b: 0, a: 0}

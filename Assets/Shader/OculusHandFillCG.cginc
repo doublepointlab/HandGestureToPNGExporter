@@ -62,14 +62,14 @@ VertexOutput baseVertex(VertexInput v) {
   float3 localPos = v.vertex.xyz; // Use local vertex position instead of world position
   
   // Rotation in XY plane
-  float wristRotationAngleXY = 0.69; // Controls tilt in XY plane
+  float wristRotationAngleXY = 0.89; // Controls tilt in XY plane
   float2x2 wristRotationMatrixXY = float2x2(cos(wristRotationAngleXY), -sin(wristRotationAngleXY),
                                            sin(wristRotationAngleXY), cos(wristRotationAngleXY));
   float2 rotatedWristPos = mul(wristRotationMatrixXY, float2(localPos.y, localPos.x));
   // Fade control values:
   // - Smaller difference between start/end = sharper transition
   // - Larger difference = more gradual transition
-  float fadeWidth = 0.07;  // Total width of fade zone
+  float fadeWidth = 0.11;  // Total width of fade zone
   float wristFadeStart = 0.0;  // Start fade right at the wrist
   float wristFadeEnd = wristFadeStart + fadeWidth;
   float wristFadeOffset = 0.05;
