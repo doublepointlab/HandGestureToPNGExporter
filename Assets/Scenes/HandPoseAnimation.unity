@@ -50528,7 +50528,7 @@ Transform:
   m_GameObject: {fileID: 1761318142}
   serializedVersion: 2
   m_LocalRotation: {x: -0.6634753, y: -0.69956523, z: -0.1740373, w: 0.20029992}
-  m_LocalPosition: {x: -0.0357, y: 0.009, z: 0.0116}
+  m_LocalPosition: {x: -0.0357, y: 0.046, z: 0.0116}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -66061,7 +66061,7 @@ PrefabInstance:
     - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: endFrame
-      value: 63
+      value: 72
       objectReference: {fileID: 0}
     - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
@@ -66076,7 +66076,7 @@ PrefabInstance:
     - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: outputName
-      value: FlickTapDownBlue
+      value: FlickTapDownBluev2
       objectReference: {fileID: 0}
     - target: {fileID: 2475372487937925307, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
@@ -66356,12 +66356,12 @@ PrefabInstance:
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: durations.Array.size
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: handPoses.Array.size
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
@@ -66381,22 +66381,22 @@ PrefabInstance:
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: durations.Array.data[3]
-      value: 0.19
+      value: 0.153
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: durations.Array.data[4]
-      value: 0.231
+      value: 0.19
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: durations.Array.data[5]
-      value: 0.246
+      value: 0.231
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: durations.Array.data[6]
-      value: 0.25
+      value: 0.246
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
@@ -66432,7 +66432,7 @@ PrefabInstance:
         type: 3}
       propertyPath: handPoses.Array.data[3]
       value: 
-      objectReference: {fileID: 1352572620}
+      objectReference: {fileID: 999241352}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: handPoses.Array.data[4]
