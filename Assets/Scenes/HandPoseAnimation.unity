@@ -16533,7 +16533,7 @@ Transform:
   m_GameObject: {fileID: 463437709}
   serializedVersion: 2
   m_LocalRotation: {x: -0.21379632, y: -0.21817973, z: 0.19372146, w: 0.93228793}
-  m_LocalPosition: {x: -0.083, y: -0.041, z: 0.048}
+  m_LocalPosition: {x: -0.048, y: -0.05, z: 0.048}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17782,7 +17782,7 @@ Transform:
   m_GameObject: {fileID: 504305800}
   serializedVersion: 2
   m_LocalRotation: {x: -0.9108527, y: -0.37041965, z: -0.024883006, w: 0.18032624}
-  m_LocalPosition: {x: -0.083, y: -0.041, z: 0.048}
+  m_LocalPosition: {x: -0.048, y: -0.05, z: 0.048}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -32946,6 +32946,360 @@ Transform:
   - {fileID: 1924408768}
   m_Father: {fileID: 1502235781}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1007515795
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1751815444890467260, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2195535558802156769, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357710757774943412, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.048
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357710757774943412, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357710757774943412, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.048
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357710757774943412, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.93228793
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357710757774943412, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.21379605
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357710757774943412, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.21817985
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357710757774943412, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.19372159
+      objectReference: {fileID: 0}
+    - target: {fileID: 4914677579715187945, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9e2009dfbb56344958032c3c570e26dc, type: 2}
+    - target: {fileID: 6148853102935821702, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: watch
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6583002312108457499, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_Name
+      value: LeftHand (Palm-Up Double Tap Hand Up)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6583002312108457499, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6661893218446495689, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: animationCount
+      value: 103
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.size
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.size
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[0]
+      value: 0.139
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[1]
+      value: 0.139
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[2]
+      value: 0.081
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[3]
+      value: 0.129
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[4]
+      value: 0.033
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[5]
+      value: 0.139
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[6]
+      value: 0.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[7]
+      value: 0.158
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[8]
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[9]
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[0]
+      value: 
+      objectReference: {fileID: 682336482}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[1]
+      value: 
+      objectReference: {fileID: 682336482}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[2]
+      value: 
+      objectReference: {fileID: 5412795684914736205}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[3]
+      value: 
+      objectReference: {fileID: 5412795684914736205}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[4]
+      value: 
+      objectReference: {fileID: 682336482}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[5]
+      value: 
+      objectReference: {fileID: 682336482}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[6]
+      value: 
+      objectReference: {fileID: 5412795684914736205}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[7]
+      value: 
+      objectReference: {fileID: 5412795684914736205}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[8]
+      value: 
+      objectReference: {fileID: 682336482}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[9]
+      value: 
+      objectReference: {fileID: 682336482}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[10]
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[11]
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: durations.Array.data[12]
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[10]
+      value: 
+      objectReference: {fileID: 1879235561}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[11]
+      value: 
+      objectReference: {fileID: 1879235561}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: handPoses.Array.data[12]
+      value: 
+      objectReference: {fileID: 1879235561}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: endFrame
+      value: 103
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: fadeInOut
+      value: 
+      objectReference: {fileID: 775998834}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: isFadingIn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: outputName
+      value: PalmUpDoubleTapHandUp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: exportAsGIF
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: exportAsMP4
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: isFadingOut
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: isRecording
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: targetCamera
+      value: 
+      objectReference: {fileID: 632429410}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: exportAsPNGSequence
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: openFolderAfterRecording
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: moreSettings._outputWidth
+      value: 720
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: moreSettings._backgroundColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: moreSettings._backgroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: moreSettings._backgroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537214234623563757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: moreSettings._backgroundColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 6148853102935821702, guid: dd44725887751420db72919372a7fe49, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: dd44725887751420db72919372a7fe49, type: 3}
 --- !u!1 &1008026227
 GameObject:
   m_ObjectHideFlags: 0
@@ -74658,7 +75012,7 @@ Transform:
   m_GameObject: {fileID: 7857257394470712065}
   serializedVersion: 2
   m_LocalRotation: {x: -0.21379632, y: -0.21817973, z: 0.19372146, w: 0.93228793}
-  m_LocalPosition: {x: -0.083, y: -0.041, z: 0.048}
+  m_LocalPosition: {x: -0.048, y: -0.05, z: 0.048}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -74810,7 +75164,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 7883dd9e626f147c3832330ebddf5ebd, type: 2}
+      objectReference: {fileID: 2100000, guid: 9e2009dfbb56344958032c3c570e26dc, type: 2}
     - target: {fileID: 6148853102935821702, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: watch
@@ -79553,7 +79907,7 @@ PrefabInstance:
     - target: {fileID: 5177163132399735332, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5463210024535790924, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
@@ -82058,6 +82412,7 @@ SceneRoots:
   - {fileID: 501621458}
   - {fileID: 775998838}
   - {fileID: 3771025714421419119}
+  - {fileID: 1007515795}
   - {fileID: 479744387768997968}
   - {fileID: 3870618658244681258}
   - {fileID: 7426465939100777416}
