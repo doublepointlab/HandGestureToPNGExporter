@@ -4,13 +4,19 @@ using System;
 
 public class SpriteController : MonoBehaviour
 {
-    [SerializeField] private Image sourceImage;
+    [SerializeField] private Image referenceImage; // Image to apply target sprite to
+    [SerializeField] private Sprite sourceSprite; // Idle state sprite
     [SerializeField] private Sprite targetSprite;
     [SerializeField] private PoseAnimator poseAnimator;
     [SerializeField] private int changeSpriteAfterPoseIndex = 1;
     
+    [Header("Bounce Animation")]
+    [SerializeField] private bool enableBounceAnimation = true;
+    [SerializeField] private float bounceDuration = 0.5f;
+    [SerializeField] private float bounceIntensity = 1.2f;
+    
     private bool hasTriggeredForPoseIndex = false;
-    private Sprite originalSourceSprite;
+    private Sprite originalReferenceSprite;
     private int lastPoseIndex = -1;
     
     // Events
@@ -31,22 +37,27 @@ public class SpriteController : MonoBehaviour
     /// </summary>
     public void InitializeSprite()
     {
-        // Validate source image component
-        if (sourceImage == null)
+        // Validate source sprite (idle state)
+        if (sourceSprite == null)
         {
-            Debug.LogWarning("SpriteController: No source Image component assigned. Please assign an Image component.");
+            Debug.LogWarning("SpriteController: No source sprite assigned. Please assign a source sprite for idle state.");
             return;
         }
         
-        // Validate target sprite
-        if (targetSprite == null)
+        // Validate reference image component
+        if (referenceImage == null)
         {
-            Debug.LogWarning("SpriteController: No target sprite assigned. Please assign a target sprite.");
+            Debug.LogWarning("SpriteController: No reference Image component assigned. Please assign a reference Image component.");
             return;
         }
         
-        // Store the original source sprite for resetting
-        originalSourceSprite = sourceImage.sprite;
+        // Target sprite is optional - if not set, only bounce animation will occur
+        
+        // Store the original reference sprite for resetting
+        originalReferenceSprite = referenceImage.sprite;
+        
+        // Set initial state: apply source sprite to reference image (idle)
+        referenceImage.sprite = sourceSprite;
         
         Debug.Log($"SpriteController initialized. Will change sprite when pose index reaches {changeSpriteAfterPoseIndex}");
     }
@@ -60,12 +71,18 @@ public class SpriteController : MonoBehaviour
         
         int currentPoseIndex = poseAnimator.CurrentPoseIndex;
         
+        // Debug logging to help diagnose issues
+        if (currentPoseIndex != lastPoseIndex)
+        {
+            Debug.Log($"Pose index changed: {lastPoseIndex} -> {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex}, triggered: {hasTriggeredForPoseIndex})");
+        }
+        
         // Check if we've passed the threshold and haven't triggered yet
         if (currentPoseIndex >= changeSpriteAfterPoseIndex && !hasTriggeredForPoseIndex)
         {
             hasTriggeredForPoseIndex = true;
-            ChangeSprite();
-            Debug.Log($"Sprite changed at pose index {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex})");
+            TriggerSpriteChange();
+            Debug.Log($"Sprite triggered at pose index {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex})");
         }
         
         // Check for pose cycle completion (reset to source sprite)
@@ -91,29 +108,70 @@ public class SpriteController : MonoBehaviour
     }
     
     /// <summary>
-    /// Change the sprite to target sprite
+    /// Trigger sprite change and bounce animation
     /// </summary>
-    public void ChangeSprite()
+    public void TriggerSpriteChange()
     {
-        if (sourceImage != null && targetSprite != null)
+        // Change sprite if target sprite is available
+        if (targetSprite != null)
         {
-            // Change sprite to target sprite
-            sourceImage.sprite = targetSprite;
-            OnSpriteChanged?.Invoke();
-            Debug.Log($"Sprite changed to target sprite at pose index {changeSpriteAfterPoseIndex}");
+            ChangeSprite();
+        }
+        
+        // Always trigger bounce animation if enabled
+        if (enableBounceAnimation)
+        {
+            TriggerBounceAnimation();
         }
     }
     
     /// <summary>
-    /// Reset sprite to original source sprite
+    /// Change the sprite to target sprite (apply to reference image)
+    /// </summary>
+    public void ChangeSprite()
+    {
+        if (referenceImage == null || targetSprite == null) return;
+        
+        // Apply target sprite to reference image
+        referenceImage.sprite = targetSprite;
+        
+        OnSpriteChanged?.Invoke();
+        Debug.Log($"Sprite changed to target sprite: {targetSprite.name}");
+    }
+    
+    /// <summary>
+    /// Trigger bounce animation on the reference image
+    /// </summary>
+    public void TriggerBounceAnimation()
+    {
+        if (referenceImage == null) return;
+        
+        // Store original scale
+        Vector3 originalScale = referenceImage.transform.localScale;
+        
+        // Create bounce animation using LeanTween
+        LeanTween.scale(referenceImage.gameObject, originalScale * bounceIntensity, bounceDuration * 0.5f)
+            .setEaseOutQuad()
+            .setOnComplete(() => {
+                LeanTween.scale(referenceImage.gameObject, originalScale, bounceDuration * 0.5f)
+                    .setEaseInQuad();
+            });
+        
+        Debug.Log($"Bounce animation triggered (intensity: {bounceIntensity}, duration: {bounceDuration})");
+    }
+    
+    /// <summary>
+    /// Reset to source sprite (idle state)
     /// </summary>
     public void ResetToSourceSprite()
     {
-        if (sourceImage != null && originalSourceSprite != null)
+        if (referenceImage != null && sourceSprite != null)
         {
-            sourceImage.sprite = originalSourceSprite;
+            // Apply source sprite to reference image (idle state)
+            referenceImage.sprite = sourceSprite;
+            
             OnSpriteChanged?.Invoke();
-            Debug.Log("Sprite reset to original source sprite");
+            Debug.Log("Reset to source sprite (idle state)");
         }
     }
     
@@ -134,7 +192,16 @@ public class SpriteController : MonoBehaviour
     [ContextMenu("Change Sprite")]
     public void ManualSpriteChange()
     {
-        ChangeSprite();
+        TriggerSpriteChange();
+    }
+    
+    /// <summary>
+    /// Manually trigger bounce animation (for testing)
+    /// </summary>
+    [ContextMenu("Trigger Bounce")]
+    public void ManualBounceAnimation()
+    {
+        TriggerBounceAnimation();
     }
     
     /// <summary>
