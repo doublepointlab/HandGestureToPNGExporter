@@ -49,19 +49,30 @@ public class PoseAnimator : MonoBehaviour
     
     private void UpdateCurrentPose(int newPoseIndex)
     {
-        currentPoseIndex = newPoseIndex;
-        currentPoseHandJoints = handPoses[currentPoseIndex].GetComponentsInChildren<Transform>();
+        if (handPoses != null && newPoseIndex >= 0 && newPoseIndex < handPoses.Length && handPoses[newPoseIndex] != null)
+        {
+            currentPoseIndex = newPoseIndex;
+            currentPoseHandJoints = handPoses[currentPoseIndex].GetComponentsInChildren<Transform>();
+        }
     }
     
     private void UpdateTargetPose(int newPoseIndex)
     {
-        targetPoseIndex = newPoseIndex;
-        targetPoseHandJoints = handPoses[targetPoseIndex].GetComponentsInChildren<Transform>();
-        visiblePoseHandJoints = transform.GetComponentsInChildren<Transform>(); // Update visiblePoseHandJoints
+        if (handPoses != null && newPoseIndex >= 0 && newPoseIndex < handPoses.Length && handPoses[newPoseIndex] != null)
+        {
+            targetPoseIndex = newPoseIndex;
+            targetPoseHandJoints = handPoses[targetPoseIndex].GetComponentsInChildren<Transform>();
+            visiblePoseHandJoints = transform.GetComponentsInChildren<Transform>(); // Update visiblePoseHandJoints
+        }
     }
 
     private void Update()
     {
+        // Safety checks to prevent crashes
+        if (durations == null || handPoses == null || currentPoseIndex < 0 || currentPoseIndex >= durations.Length)
+        {
+            return;
+        }
 
         int totalFramesForCurrentPose = Mathf.RoundToInt(durations[currentPoseIndex] * frameRate);
         int currentFrame = Mathf.RoundToInt(elapsedTime * frameRate);
@@ -81,10 +92,19 @@ public class PoseAnimator : MonoBehaviour
         // Skip the first and last frame of interpolation
         if (timeToUse < 0.98f)
         {
-            for (int i = 1; i < visiblePoseHandJoints.Length; i++)
+            // Safety checks to prevent IndexOutOfRangeException
+            if (visiblePoseHandJoints != null && currentPoseHandJoints != null && targetPoseHandJoints != null)
             {
-                visiblePoseHandJoints[i].localPosition = Vector3.Lerp(currentPoseHandJoints[i].localPosition, targetPoseHandJoints[i].localPosition, timeToUse);
-                visiblePoseHandJoints[i].localRotation = Quaternion.Slerp(currentPoseHandJoints[i].localRotation, targetPoseHandJoints[i].localRotation, timeToUse);
+                int minLength = Mathf.Min(visiblePoseHandJoints.Length, currentPoseHandJoints.Length, targetPoseHandJoints.Length);
+                
+                for (int i = 1; i < minLength; i++)
+                {
+                    if (visiblePoseHandJoints[i] != null && currentPoseHandJoints[i] != null && targetPoseHandJoints[i] != null)
+                    {
+                        visiblePoseHandJoints[i].localPosition = Vector3.Lerp(currentPoseHandJoints[i].localPosition, targetPoseHandJoints[i].localPosition, timeToUse);
+                        visiblePoseHandJoints[i].localRotation = Quaternion.Slerp(currentPoseHandJoints[i].localRotation, targetPoseHandJoints[i].localRotation, timeToUse);
+                    }
+                }
             }
         }
 
