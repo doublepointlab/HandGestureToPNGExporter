@@ -3,12 +3,17 @@ using UnityEditor;
 using System.IO;
 using System.Diagnostics;
 using System.Collections;
+using System.Collections.Generic;
 
 public class FrameRecorder : MonoBehaviour
 {
     [SerializeField] private Camera targetCamera; // The camera to capture frames from
     [SerializeField] private FadeInOut fadeInOut; // Reference to FadeInOut script
     [SerializeField] private MoreSettings moreSettings = new MoreSettings();
+    [Header("Hand Mesh")]
+    [SerializeField] private GameObject handGameObject; // The hand gameobject to duplicate
+    [SerializeField] private BoostIntensity boostIntensity = BoostIntensity.x1; // Boost intensity: Duplicates hand gameobject multiple times for enhanced visual impact
+    private BoostIntensity previousBoostIntensity = BoostIntensity.x1; // Track previous boost intensity for change detection
 
     [SerializeField] private bool exportAsMP4 = false; // Export as MP4
     [SerializeField] private bool exportAsPNGSequence = true; // Export as PNG Sequence
@@ -34,6 +39,7 @@ public class FrameRecorder : MonoBehaviour
     [HideInInspector] private OutputScale outputScale; // Output scale
     [HideInInspector] public int frameRate; // The frame rate for capturing frames
     [HideInInspector] private int gifFrameRate; // The frame rate for capturing frames for GIF
+    [HideInInspector] private List<GameObject> duplicatedHands = new List<GameObject>(); // List to track duplicated hand gameobjects
 
     [System.Serializable]
     public class MoreSettings
@@ -55,6 +61,16 @@ public class FrameRecorder : MonoBehaviour
         x4 = 4
     }
 
+    // Enum for boost intensity
+    public enum BoostIntensity
+    {
+        x1 = 1,
+        x2 = 2,
+        x3 = 3,
+        x4 = 4,
+        x5 = 5
+    }
+
     void Awake()
     {
         backgroundColor = moreSettings._backgroundColor;
@@ -63,6 +79,25 @@ public class FrameRecorder : MonoBehaviour
         outputScale = moreSettings._outputScale;
         frameRate = moreSettings._frameRate;
         gifFrameRate = moreSettings._gifFrameRate;
+    }
+
+    // Called when values are changed in the Inspector
+    void OnValidate()
+    {
+        // Only run duplication in edit mode (not play mode)
+        if (!Application.isPlaying)
+        {
+            // Check if boost intensity has changed
+            if (boostIntensity != previousBoostIntensity)
+            {
+                // Defer cleanup to avoid DestroyImmediate restrictions in OnValidate
+                EditorApplication.delayCall += () => {
+                    CleanupDuplicatedHands();
+                    previousBoostIntensity = boostIntensity;
+                    DuplicateHands();
+                };
+            }
+        }
     }
     void Start()
     {
@@ -89,6 +124,8 @@ public class FrameRecorder : MonoBehaviour
         }
         CreateOutputFolder();
         ConfigureCamera(); // Configure the camera settings
+        previousBoostIntensity = boostIntensity; // Initialize previous boost intensity
+        DuplicateHands(); // Duplicate hands based on boost intensity
         StartRecording(); // Start the recording process
         
     }
@@ -230,6 +267,13 @@ public class FrameRecorder : MonoBehaviour
             }
             OpenOutputFolder(); // Open the output folder
         }
+        CleanupDuplicatedHands(); // Clean up duplicated hands
+    }
+
+    // Handle object destruction
+    void OnDestroy()
+    {
+        CleanupDuplicatedHands(); // Clean up duplicated hands
     }
 
     // Open the output folder in the file explorer and select the file outputname .gif
@@ -348,6 +392,118 @@ public class FrameRecorder : MonoBehaviour
         if (exportAsWebM && !exportAsPNGSequence)
         {
             DeleteFiles("PNG", "*.png"); // Delete PNG files if not required
+        }
+    }
+
+    // Duplicate hand gameobjects based on boost intensity
+    void DuplicateHands()
+    {
+        if (handGameObject == null)
+        {
+            UnityEngine.Debug.LogWarning("Hand GameObject is not assigned. Cannot duplicate hands.");
+            return;
+        }
+
+        if (boostIntensity == BoostIntensity.x1)
+        {
+            return; // No duplication needed
+        }
+
+        // Prevent duplication if this is already a duplicate
+        if (handGameObject.name.Contains("_Boost_"))
+        {
+            UnityEngine.Debug.LogWarning("Cannot duplicate a hand that is already a duplicate. Skipping duplication.");
+            return;
+        }
+
+        // Clean up any existing duplicates first
+        CleanupDuplicatedHands();
+
+        int duplicateCount = (int)boostIntensity - 1; // Subtract 1 because original hand already exists
+        float spacing = 2.0f; // Spacing between duplicated hands
+
+        for (int i = 0; i < duplicateCount; i++)
+        {
+            try
+            {
+                // Calculate position offset for this duplicate
+                Vector3 offset = new Vector3((i + 1) * spacing, 0, 0);
+                Vector3 duplicatePosition = handGameObject.transform.position + offset;
+
+                // Instantiate the duplicate
+                GameObject duplicate = Instantiate(handGameObject, duplicatePosition, handGameObject.transform.rotation, handGameObject.transform.parent);
+                duplicate.name = handGameObject.name + "_Boost_" + (i + 1);
+
+                // Disable animation components to prevent conflicts
+                HandPoseAnimator handPoseAnimator = duplicate.GetComponent<HandPoseAnimator>();
+                if (handPoseAnimator != null)
+                {
+                    handPoseAnimator.enabled = false;
+                    UnityEngine.Debug.Log($"Disabled HandPoseAnimator on {duplicate.name}");
+                }
+
+                PoseAnimator poseAnimator = duplicate.GetComponent<PoseAnimator>();
+                if (poseAnimator != null)
+                {
+                    poseAnimator.enabled = false;
+                    UnityEngine.Debug.Log($"Disabled PoseAnimator on {duplicate.name}");
+                }
+
+                // Disable any other animation-related components
+                Animator animator = duplicate.GetComponent<Animator>();
+                if (animator != null)
+                {
+                    animator.enabled = false;
+                    UnityEngine.Debug.Log($"Disabled Animator on {duplicate.name}");
+                }
+
+                // In edit mode, mark the duplicate as not editable to prevent further issues
+                if (!Application.isPlaying)
+                {
+                    duplicate.hideFlags = HideFlags.DontSaveInEditor;
+                }
+
+                // Add to tracking list
+                duplicatedHands.Add(duplicate);
+
+                UnityEngine.Debug.Log($"Duplicated hand: {duplicate.name} at position {duplicatePosition}");
+            }
+            catch (System.Exception e)
+            {
+                UnityEngine.Debug.LogError($"Failed to duplicate hand {i + 1}: {e.Message}");
+            }
+        }
+
+        UnityEngine.Debug.Log($"Boost intensity {boostIntensity}: Created {duplicateCount} hand duplicates");
+    }
+
+    // Clean up duplicated hand gameobjects
+    void CleanupDuplicatedHands()
+    {
+        foreach (GameObject duplicate in duplicatedHands)
+        {
+            if (duplicate != null)
+            {
+                if (Application.isPlaying)
+                {
+                    Destroy(duplicate);
+                }
+                else
+                {
+                    DestroyImmediate(duplicate);
+                }
+            }
+        }
+        duplicatedHands.Clear();
+    }
+
+    // Method to change boost intensity at runtime
+    public void SetBoostIntensity(BoostIntensity newIntensity)
+    {
+        if (boostIntensity != newIntensity)
+        {
+            boostIntensity = newIntensity;
+            DuplicateHands(); // Recreate duplicates with new intensity
         }
     }
 
