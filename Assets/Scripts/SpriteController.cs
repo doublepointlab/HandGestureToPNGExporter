@@ -10,6 +10,8 @@ public class SpriteController : MonoBehaviour
     [SerializeField] private int changeSpriteAfterPoseIndex = 1;
     
     private bool hasTriggeredForPoseIndex = false;
+    private Sprite originalSourceSprite;
+    private int lastPoseIndex = -1;
     
     // Events
     public static event Action OnSpriteChanged;
@@ -43,6 +45,9 @@ public class SpriteController : MonoBehaviour
             return;
         }
         
+        // Store the original source sprite for resetting
+        originalSourceSprite = sourceImage.sprite;
+        
         Debug.Log($"SpriteController initialized. Will change sprite when pose index reaches {changeSpriteAfterPoseIndex}");
     }
     
@@ -62,10 +67,31 @@ public class SpriteController : MonoBehaviour
             ChangeSprite();
             Debug.Log($"Sprite changed at pose index {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex})");
         }
+        
+        // Check for pose cycle completion (reset to source sprite)
+        CheckForPoseCycleCompletion(currentPoseIndex);
+        
+        // Update last pose index for next frame
+        lastPoseIndex = currentPoseIndex;
     }
     
     /// <summary>
-    /// Change the sprite
+    /// Check if pose animator has completed a cycle and reset sprite to source
+    /// </summary>
+    /// <param name="currentPoseIndex">Current pose index</param>
+    private void CheckForPoseCycleCompletion(int currentPoseIndex)
+    {
+        // If we've triggered the sprite change and pose index goes back to 0 (cycle completion)
+        if (hasTriggeredForPoseIndex && currentPoseIndex == 0 && lastPoseIndex > 0)
+        {
+            ResetToSourceSprite();
+            hasTriggeredForPoseIndex = false; // Reset trigger state for next cycle
+            Debug.Log("Pose cycle completed - sprite reset to source");
+        }
+    }
+    
+    /// <summary>
+    /// Change the sprite to target sprite
     /// </summary>
     public void ChangeSprite()
     {
@@ -75,6 +101,19 @@ public class SpriteController : MonoBehaviour
             sourceImage.sprite = targetSprite;
             OnSpriteChanged?.Invoke();
             Debug.Log($"Sprite changed to target sprite at pose index {changeSpriteAfterPoseIndex}");
+        }
+    }
+    
+    /// <summary>
+    /// Reset sprite to original source sprite
+    /// </summary>
+    public void ResetToSourceSprite()
+    {
+        if (sourceImage != null && originalSourceSprite != null)
+        {
+            sourceImage.sprite = originalSourceSprite;
+            OnSpriteChanged?.Invoke();
+            Debug.Log("Sprite reset to original source sprite");
         }
     }
     
@@ -96,5 +135,14 @@ public class SpriteController : MonoBehaviour
     public void ManualSpriteChange()
     {
         ChangeSprite();
+    }
+    
+    /// <summary>
+    /// Manually reset sprite to source (for testing)
+    /// </summary>
+    [ContextMenu("Reset to Source Sprite")]
+    public void ManualResetToSource()
+    {
+        ResetToSourceSprite();
     }
 }
