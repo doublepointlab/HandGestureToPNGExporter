@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 
 public class PoseAnimator : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class PoseAnimator : MonoBehaviour
     
     private int currentPoseIndex = 0;
     private int targetPoseIndex = 1;
+    
+    // Public getter for current pose index
+    public int CurrentPoseIndex => currentPoseIndex;
     
     private Transform[] currentPoseHandJoints;
     private Transform[] targetPoseHandJoints;
@@ -21,6 +25,9 @@ public class PoseAnimator : MonoBehaviour
     [SerializeField] private FrameRecorder frameRecorder;
     private int frameRate = 0;
     [HideInInspector] public int animationCount = 0;
+    
+    // Events for pose index changes
+    public static event Action<int> OnPoseIndexChanged;
     
     private void Start()
     {
@@ -53,6 +60,9 @@ public class PoseAnimator : MonoBehaviour
         {
             currentPoseIndex = newPoseIndex;
             currentPoseHandJoints = handPoses[currentPoseIndex].GetComponentsInChildren<Transform>();
+            
+            // Trigger pose index change event
+            OnPoseIndexChanged?.Invoke(currentPoseIndex);
         }
     }
     
