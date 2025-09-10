@@ -10,9 +10,6 @@ public class FrameRecorder : MonoBehaviour
     [SerializeField] private Camera targetCamera; // The camera to capture frames from
     [SerializeField] private FadeInOut fadeInOut; // Reference to FadeInOut script
     [SerializeField] private MoreSettings moreSettings = new MoreSettings();
-    [Header("Hand Mesh")]
-    [SerializeField] private GameObject handGameObject; // The hand gameobject to duplicate
-    [SerializeField] private BoostIntensity boostIntensity = BoostIntensity.x1; // Boost intensity: Duplicates hand gameobject multiple times for enhanced visual impact
     private BoostIntensity previousBoostIntensity = BoostIntensity.x1; // Track previous boost intensity for change detection
 
     [SerializeField] private bool exportAsMP4 = false; // Export as MP4
@@ -39,6 +36,8 @@ public class FrameRecorder : MonoBehaviour
     [HideInInspector] private OutputScale outputScale; // Output scale
     [HideInInspector] public int frameRate; // The frame rate for capturing frames
     [HideInInspector] private int gifFrameRate; // The frame rate for capturing frames for GIF
+    [HideInInspector] private GameObject handMesh; // The hand mesh to duplicate
+    [HideInInspector] private BoostIntensity boostIntensity; // Boost intensity for hand duplication
     [HideInInspector] private List<GameObject> duplicatedHands = new List<GameObject>(); // List to track duplicated hand gameobjects
 
     [System.Serializable]
@@ -50,6 +49,8 @@ public class FrameRecorder : MonoBehaviour
         public OutputScale _outputScale = OutputScale.x2; // Output scale
         public int _frameRate = 60; // The frame rate for capturing frames
         public int _gifFrameRate = 30; // The frame rate for capturing frames for GIF
+        public GameObject _handMesh; // The hand mesh to duplicate
+        public BoostIntensity _boostIntensity = BoostIntensity.x1; // Boost intensity: Duplicates hand mesh multiple times for enhanced visual impact
     }
 
     // Enum for output scale
@@ -79,6 +80,8 @@ public class FrameRecorder : MonoBehaviour
         outputScale = moreSettings._outputScale;
         frameRate = moreSettings._frameRate;
         gifFrameRate = moreSettings._gifFrameRate;
+        handMesh = moreSettings._handMesh;
+        boostIntensity = moreSettings._boostIntensity;
     }
 
     // Called when values are changed in the Inspector
@@ -87,16 +90,16 @@ public class FrameRecorder : MonoBehaviour
         // Only run duplication in edit mode (not play mode)
         if (!Application.isPlaying)
         {
-            // Check if boost intensity has changed
-            if (boostIntensity != previousBoostIntensity)
-            {
-                // Defer cleanup to avoid DestroyImmediate restrictions in OnValidate
-                EditorApplication.delayCall += () => {
-                    CleanupDuplicatedHands();
-                    previousBoostIntensity = boostIntensity;
-                    DuplicateHands();
-                };
-            }
+        // Check if boost intensity has changed
+        if (moreSettings._boostIntensity != previousBoostIntensity)
+        {
+            // Defer cleanup to avoid DestroyImmediate restrictions in OnValidate
+            EditorApplication.delayCall += () => {
+                CleanupDuplicatedHands();
+                previousBoostIntensity = moreSettings._boostIntensity;
+                DuplicateHands();
+            };
+        }
         }
     }
     void Start()
@@ -124,7 +127,7 @@ public class FrameRecorder : MonoBehaviour
         }
         CreateOutputFolder();
         ConfigureCamera(); // Configure the camera settings
-        previousBoostIntensity = boostIntensity; // Initialize previous boost intensity
+        previousBoostIntensity = moreSettings._boostIntensity; // Initialize previous boost intensity
         DuplicateHands(); // Duplicate hands based on boost intensity
         StartRecording(); // Start the recording process
         
@@ -276,10 +279,31 @@ public class FrameRecorder : MonoBehaviour
         CleanupDuplicatedHands(); // Clean up duplicated hands
     }
 
-    // Open the output folder in the file explorer and select the file outputname .gif
+    // Open the output folder in the file explorer and select the exported file
+    // Priority: MP4 > GIF > WebM
     void OpenOutputFolder()
     {
-        string filePath = Path.Combine("Recordings", "GIF", $"{outputName}.gif");
+        string filePath = string.Empty;
+        
+        // Check export flags in priority order
+        if (exportAsMP4)
+        {
+            filePath = Path.Combine("Recordings", "MP4", $"{outputName}.mp4");
+        }
+        else if (exportAsGIF)
+        {
+            filePath = Path.Combine("Recordings", "GIF", $"{outputName}.gif");
+        }
+        else if (exportAsWebM)
+        {
+            filePath = Path.Combine("Recordings", "WebM", $"{outputName}.webm");
+        }
+        else
+        {
+            // If no exports are enabled, default to PNG folder
+            filePath = Path.Combine("Recordings", "PNG", outputName);
+        }
+        
         #if UNITY_EDITOR_WIN
             Process.Start("explorer.exe", $"/select,\"{filePath}\"");
         #elif UNITY_EDITOR_OSX
@@ -398,19 +422,19 @@ public class FrameRecorder : MonoBehaviour
     // Duplicate hand gameobjects based on boost intensity
     void DuplicateHands()
     {
-        if (handGameObject == null)
+        if (moreSettings._handMesh == null)
         {
-            UnityEngine.Debug.LogWarning("Hand GameObject is not assigned. Cannot duplicate hands.");
+            UnityEngine.Debug.LogWarning("Hand Mesh is not assigned. Cannot duplicate hands.");
             return;
         }
 
-        if (boostIntensity == BoostIntensity.x1)
+        if (moreSettings._boostIntensity == BoostIntensity.x1)
         {
             return; // No duplication needed
         }
 
         // Prevent duplication if this is already a duplicate
-        if (handGameObject.name.Contains("_Boost_"))
+        if (moreSettings._handMesh.name.Contains("_Boost_"))
         {
             UnityEngine.Debug.LogWarning("Cannot duplicate a hand that is already a duplicate. Skipping duplication.");
             return;
@@ -419,7 +443,7 @@ public class FrameRecorder : MonoBehaviour
         // Clean up any existing duplicates first
         CleanupDuplicatedHands();
 
-        int duplicateCount = (int)boostIntensity - 1; // Subtract 1 because original hand already exists
+        int duplicateCount = (int)moreSettings._boostIntensity - 1; // Subtract 1 because original hand already exists
         float spacing = 2.0f; // Spacing between duplicated hands
 
         for (int i = 0; i < duplicateCount; i++)
@@ -428,11 +452,11 @@ public class FrameRecorder : MonoBehaviour
             {
                 // Calculate position offset for this duplicate
                 Vector3 offset = new Vector3((i + 1) * spacing, 0, 0);
-                Vector3 duplicatePosition = handGameObject.transform.position + offset;
+                Vector3 duplicatePosition = moreSettings._handMesh.transform.position + offset;
 
                 // Instantiate the duplicate
-                GameObject duplicate = Instantiate(handGameObject, duplicatePosition, handGameObject.transform.rotation, handGameObject.transform.parent);
-                duplicate.name = handGameObject.name + "_Boost_" + (i + 1);
+                GameObject duplicate = Instantiate(moreSettings._handMesh, duplicatePosition, moreSettings._handMesh.transform.rotation, moreSettings._handMesh.transform.parent);
+                duplicate.name = moreSettings._handMesh.name + "_Boost_" + (i + 1);
 
                 // Disable animation components to prevent conflicts
                 HandPoseAnimator handPoseAnimator = duplicate.GetComponent<HandPoseAnimator>();
@@ -474,7 +498,7 @@ public class FrameRecorder : MonoBehaviour
             }
         }
 
-        UnityEngine.Debug.Log($"Boost intensity {boostIntensity}: Created {duplicateCount} hand duplicates");
+        UnityEngine.Debug.Log($"Boost intensity {moreSettings._boostIntensity}: Created {duplicateCount} hand duplicates");
     }
 
     // Clean up duplicated hand gameobjects
@@ -500,9 +524,9 @@ public class FrameRecorder : MonoBehaviour
     // Method to change boost intensity at runtime
     public void SetBoostIntensity(BoostIntensity newIntensity)
     {
-        if (boostIntensity != newIntensity)
+        if (moreSettings._boostIntensity != newIntensity)
         {
-            boostIntensity = newIntensity;
+            moreSettings._boostIntensity = newIntensity;
             DuplicateHands(); // Recreate duplicates with new intensity
         }
     }
