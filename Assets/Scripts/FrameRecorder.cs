@@ -14,6 +14,7 @@ public class FrameRecorder : MonoBehaviour
     [SerializeField] private bool exportAsPNGSequence = true; // Export as PNG Sequence
     [SerializeField] private bool exportAsJPGSequence = false; // Export as JPG Sequence
     [SerializeField] private bool exportAsGIF = false; // Export as GIF
+    [SerializeField] private bool exportAsWebM = false; // Export as WebM with alpha
     [SerializeField] private bool isFadingIn = false; // Flag to check if fading in
     [SerializeField] private bool isFadingOut = false; // Flag to check if fading out
 
@@ -168,7 +169,7 @@ public class FrameRecorder : MonoBehaviour
         }        
 
         // Encode and save the frame as PNG if required
-        if (exportAsPNGSequence || exportAsMP4)
+        if (exportAsPNGSequence || exportAsMP4 || exportAsWebM)
         {
             bytes = texture.EncodeToPNG();
             Directory.CreateDirectory(Path.Combine("Recordings", "PNG", outputName));
@@ -223,6 +224,10 @@ public class FrameRecorder : MonoBehaviour
             {   
                 ExportToGIF(); // Export to GIF
             }
+            if (exportAsWebM)
+            {
+                ExportToWebM(); // Export to WebM with alpha
+            }
             OpenOutputFolder(); // Open the output folder
         }
     }
@@ -266,7 +271,7 @@ public class FrameRecorder : MonoBehaviour
             }
             UnityEngine.Debug.Log($"MP4 export completed. Total frames: {actualFrameCount}, Total time: {actualFrameCount / (float)frameRate} seconds.");
         }
-        if (exportAsMP4 && !exportAsPNGSequence)
+        if (exportAsMP4 && !exportAsPNGSequence && !exportAsWebM)
         {
             DeleteFiles("PNG", "*.png"); // Delete PNG files if not required
         }
@@ -306,6 +311,43 @@ public class FrameRecorder : MonoBehaviour
         if (exportAsGIF && !exportAsJPGSequence)
         {
             DeleteFiles("JPG", "*.jpg"); // Delete JPG files if not required
+        }
+    }
+
+    // Export the recorded frames to WebM with alpha
+    void ExportToWebM()
+    {
+        string ffmpegPath = "/usr/local/bin/ffmpeg";
+        string inputPattern = Path.Combine("Recordings", "PNG", outputName, $"{outputName}_frame_%d.png");
+        string outputFilePath = Path.Combine("Recordings", "WebM", $"{outputName}.webm");
+        if (File.Exists(outputFilePath))
+        {
+            File.Delete(outputFilePath);
+        }
+
+        Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
+
+        ProcessStartInfo processStartInfo = new ProcessStartInfo(ffmpegPath)
+        {
+            Arguments = $"-framerate {frameRate} -start_number 0 -i \"{inputPattern}\" -c:v libvpx-vp9 -pix_fmt yuva420p -lossless 1 \"{outputFilePath}\"",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (Process process = Process.Start(processStartInfo))
+        {
+            process.WaitForExit();
+            while (!File.Exists(outputFilePath))
+            {
+                System.Threading.Thread.Sleep(100); // Wait for 100 milliseconds before checking again
+            }
+            UnityEngine.Debug.Log($"WebM export completed. Total frames: {actualFrameCount}, Total time: {actualFrameCount / (float)frameRate} seconds.");
+        }
+
+        if (exportAsWebM && !exportAsPNGSequence)
+        {
+            DeleteFiles("PNG", "*.png"); // Delete PNG files if not required
         }
     }
 
