@@ -1959,6 +1959,7 @@ GameObject:
   - component: {fileID: 2195535558802156769}
   - component: {fileID: 6148853102935821702}
   - component: {fileID: 7959355678152537562}
+  - component: {fileID: 7635838850534226193}
   - component: {fileID: 6919513331291495757}
   - component: {fileID: 8537214234623563757}
   m_Layer: 0
@@ -2015,6 +2016,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   poseAnimator: {fileID: 6919513331291495757}
   videoClip: {fileID: 0}
+--- !u!114 &7635838850534226193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6583002312108457499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e63ac18fd89a41f786289617287bf7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceImage: {fileID: 0}
+  sourceSprite: {fileID: 21300000, guid: 9ab7bfaeed3004ceeb94c65f9d753000, type: 3}
+  targetSprite: {fileID: 21300000, guid: a9f6dc6a3670b4f3fbc9d38ff6360ecc, type: 3}
+  poseAnimator: {fileID: 6919513331291495757}
+  changeSpriteAfterPoseIndex: 9
 --- !u!114 &6919513331291495757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2076,16 +2094,19 @@ MonoBehaviour:
     _outputScale: 2
     _frameRate: 60
     _gifFrameRate: 30
+    _handMesh: {fileID: 0}
+    _boostIntensity: 1
   exportAsMP4: 1
   exportAsPNGSequence: 0
   exportAsJPGSequence: 0
   exportAsGIF: 1
+  exportAsWebM: 0
   isFadingIn: 1
   isFadingOut: 1
   isRecording: 1
   startFrame: 0
   endFrame: 219
-  outputFolder: PalmUpDoubleTap
+  outputName: 
   frameRate: 60
 --- !u!1 &6865975931170610405
 GameObject:

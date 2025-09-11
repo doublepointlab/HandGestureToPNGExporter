@@ -19,6 +19,9 @@ public class FrameRecorder : MonoBehaviour
     [SerializeField] private bool exportAsWebM = false; // Export as WebM with alpha
     [SerializeField] private bool isFadingIn = false; // Flag to check if fading in
     [SerializeField] private bool isFadingOut = false; // Flag to check if fading out
+    [SerializeField] private DarkModeController darkModeController; // Reference to DarkModeController
+    private static BoostIntensity globalBoostIntensity = BoostIntensity.x1; // Global boost intensity state
+    private static List<GameObject> globalDuplicatedHands = new List<GameObject>(); // Global list to track duplicated hands
 
     public bool isRecording = true; // Flag to check if recording is in progress
     [HideInInspector] public int startFrame = 0; // The frame to start recording
@@ -36,21 +39,21 @@ public class FrameRecorder : MonoBehaviour
     [HideInInspector] private OutputScale outputScale; // Output scale
     [HideInInspector] public int frameRate; // The frame rate for capturing frames
     [HideInInspector] private int gifFrameRate; // The frame rate for capturing frames for GIF
-    [HideInInspector] private GameObject handMesh; // The hand mesh to duplicate
     [HideInInspector] private BoostIntensity boostIntensity; // Boost intensity for hand duplication
-    [HideInInspector] private List<GameObject> duplicatedHands = new List<GameObject>(); // List to track duplicated hand gameobjects
 
     [System.Serializable]
     public class MoreSettings
     {
-        public Color _backgroundColor = new Color(0, 0, 0, 0); // Background color
+        public Color _backgroundColor = new Color(0.1f, 0.1f, 0.1f, 1); // Dark background color
+        public Color _lightBackground = new Color(1, 1, 1, 1); // Light background color
         public int _outputWidth = 1280; // The width of the output image
         public int _outputHeight = 720; // The height of the output image
         public OutputScale _outputScale = OutputScale.x2; // Output scale
         public int _frameRate = 60; // The frame rate for capturing frames
         public int _gifFrameRate = 30; // The frame rate for capturing frames for GIF
-        public GameObject _handMesh; // The hand mesh to duplicate
         public BoostIntensity _boostIntensity = BoostIntensity.x1; // Boost intensity: Duplicates hand mesh multiple times for enhanced visual impact
+        public Material _handLight; // Light mode hand material
+        public Material _handDark; // Dark mode hand material
     }
 
     // Enum for output scale
@@ -69,7 +72,12 @@ public class FrameRecorder : MonoBehaviour
         x2 = 2,
         x3 = 3,
         x4 = 4,
-        x5 = 5
+        x5 = 5,
+        x6 = 6,
+        x7 = 7,
+        x8 = 8,
+        x9 = 9,
+        x10 = 10
     }
 
     void Awake()
@@ -80,8 +88,10 @@ public class FrameRecorder : MonoBehaviour
         outputScale = moreSettings._outputScale;
         frameRate = moreSettings._frameRate;
         gifFrameRate = moreSettings._gifFrameRate;
-        handMesh = moreSettings._handMesh;
         boostIntensity = moreSettings._boostIntensity;
+        
+        // Apply dark mode settings
+        ApplyDarkModeSettings();
     }
 
     // Called when values are changed in the Inspector
@@ -93,13 +103,16 @@ public class FrameRecorder : MonoBehaviour
         // Check if boost intensity has changed
         if (moreSettings._boostIntensity != previousBoostIntensity)
         {
-            // Defer cleanup to avoid DestroyImmediate restrictions in OnValidate
-            EditorApplication.delayCall += () => {
-                CleanupDuplicatedHands();
-                previousBoostIntensity = moreSettings._boostIntensity;
-                DuplicateHands();
-            };
+            previousBoostIntensity = moreSettings._boostIntensity;
+            if (globalBoostIntensity != moreSettings._boostIntensity)
+            {
+                globalBoostIntensity = moreSettings._boostIntensity;
+                ApplyGlobalBoostIntensity();
+            }
         }
+        
+        // Apply dark mode settings
+        ApplyDarkModeSettings();
         }
     }
     void Start()
@@ -128,7 +141,10 @@ public class FrameRecorder : MonoBehaviour
         CreateOutputFolder();
         ConfigureCamera(); // Configure the camera settings
         previousBoostIntensity = moreSettings._boostIntensity; // Initialize previous boost intensity
-        DuplicateHands(); // Duplicate hands based on boost intensity
+        
+        // Subscribe to dark mode changes
+        SubscribeToDarkModeChanges();
+        
         StartRecording(); // Start the recording process
         
     }
@@ -270,13 +286,40 @@ public class FrameRecorder : MonoBehaviour
             }
             OpenOutputFolder(); // Open the output folder
         }
-        CleanupDuplicatedHands(); // Clean up duplicated hands
+        CleanupGlobalDuplicatedHands(); // Clean up global duplicated hands
     }
 
     // Handle object destruction
     void OnDestroy()
     {
-        CleanupDuplicatedHands(); // Clean up duplicated hands
+        // Unsubscribe from dark mode changes
+        UnsubscribeFromDarkModeChanges();
+        // Cleanup handled automatically by Unity
+    }
+
+    // Subscribe to dark mode changes
+    void SubscribeToDarkModeChanges()
+    {
+        if (darkModeController != null)
+        {
+            darkModeController.OnDarkModeChanged += OnDarkModeStateChanged;
+        }
+    }
+
+    // Unsubscribe from dark mode changes
+    void UnsubscribeFromDarkModeChanges()
+    {
+        if (darkModeController != null)
+        {
+            darkModeController.OnDarkModeChanged -= OnDarkModeStateChanged;
+        }
+    }
+
+    // Handle dark mode state changes
+    void OnDarkModeStateChanged(bool isDarkMode)
+    {
+        // Update references accordingly
+        ApplyDarkModeSettings();
     }
 
     // Open the output folder in the file explorer and select the exported file
@@ -419,31 +462,82 @@ public class FrameRecorder : MonoBehaviour
         }
     }
 
-    // Duplicate hand gameobjects based on boost intensity
-    void DuplicateHands()
-    {
-        if (moreSettings._handMesh == null)
-        {
-            UnityEngine.Debug.LogWarning("Hand Mesh is not assigned. Cannot duplicate hands.");
-            return;
-        }
 
-        if (moreSettings._boostIntensity == BoostIntensity.x1)
+
+    // Method to change boost intensity at runtime
+    public void SetBoostIntensity(BoostIntensity newIntensity)
+    {
+        if (moreSettings._boostIntensity != newIntensity)
+        {
+            moreSettings._boostIntensity = newIntensity;
+            globalBoostIntensity = newIntensity;
+            ApplyGlobalBoostIntensity();
+        }
+    }
+
+
+    // Apply global dark mode settings to all FrameRecorder instances (including inactive ones)
+    public static void ApplyGlobalDarkModeSettings()
+    {
+        // Find all FrameRecorder instances in the scene, including inactive ones
+        FrameRecorder[] allFrameRecorders = Resources.FindObjectsOfTypeAll<FrameRecorder>();
+        
+        foreach (FrameRecorder frameRecorder in allFrameRecorders)
+        {
+            if (frameRecorder != null && frameRecorder.gameObject.scene.IsValid())
+            {
+                frameRecorder.ApplyDarkModeSettings();
+            }
+        }
+    }
+
+    // Apply global boost intensity to duplicate all hand meshes
+    static void ApplyGlobalBoostIntensity()
+    {
+        // Clean up existing duplicates first
+        CleanupGlobalDuplicatedHands();
+        
+        if (globalBoostIntensity == BoostIntensity.x1)
         {
             return; // No duplication needed
         }
 
-        // Prevent duplication if this is already a duplicate
-        if (moreSettings._handMesh.name.Contains("_Boost_"))
+        // Find all hand meshes in the scene (including inactive ones)
+        List<GameObject> originalHandMeshes = new List<GameObject>();
+        
+        // Get all GameObjects in the scene, including inactive ones
+        GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        
+        foreach (GameObject obj in allGameObjects)
         {
-            UnityEngine.Debug.LogWarning("Cannot duplicate a hand that is already a duplicate. Skipping duplication.");
-            return;
+            // Only process objects that are in the scene (not prefabs or assets)
+            if (obj.scene.IsValid())
+            {
+                SkinnedMeshRenderer skinnedMeshRenderer = obj.GetComponent<SkinnedMeshRenderer>();
+                if (skinnedMeshRenderer != null)
+                {
+                    // Check if this is likely a hand mesh and not already a duplicate
+                    if (IsHandMeshStatic(obj) && !obj.name.Contains("_Boost_"))
+                    {
+                        originalHandMeshes.Add(obj);
+                    }
+                }
+            }
         }
 
-        // Clean up any existing duplicates first
-        CleanupDuplicatedHands();
+        // Duplicate each original hand mesh
+        foreach (GameObject originalHand in originalHandMeshes)
+        {
+            DuplicateHandMesh(originalHand);
+        }
+        
+        UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {originalHandMeshes.Count} hand meshes");
+    }
 
-        int duplicateCount = (int)moreSettings._boostIntensity - 1; // Subtract 1 because original hand already exists
+    // Duplicate a specific hand mesh based on boost intensity
+    static void DuplicateHandMesh(GameObject originalHand)
+    {
+        int duplicateCount = (int)globalBoostIntensity - 1; // Subtract 1 because original hand already exists
         float spacing = 2.0f; // Spacing between duplicated hands
 
         for (int i = 0; i < duplicateCount; i++)
@@ -452,25 +546,23 @@ public class FrameRecorder : MonoBehaviour
             {
                 // Calculate position offset for this duplicate
                 Vector3 offset = new Vector3((i + 1) * spacing, 0, 0);
-                Vector3 duplicatePosition = moreSettings._handMesh.transform.position + offset;
+                Vector3 duplicatePosition = originalHand.transform.position + offset;
 
                 // Instantiate the duplicate
-                GameObject duplicate = Instantiate(moreSettings._handMesh, duplicatePosition, moreSettings._handMesh.transform.rotation, moreSettings._handMesh.transform.parent);
-                duplicate.name = moreSettings._handMesh.name + "_Boost_" + (i + 1);
+                GameObject duplicate = Instantiate(originalHand, duplicatePosition, originalHand.transform.rotation, originalHand.transform.parent);
+                duplicate.name = originalHand.name + "_Boost_" + (i + 1);
 
                 // Disable animation components to prevent conflicts
                 HandPoseAnimator handPoseAnimator = duplicate.GetComponent<HandPoseAnimator>();
                 if (handPoseAnimator != null)
                 {
                     handPoseAnimator.enabled = false;
-                    UnityEngine.Debug.Log($"Disabled HandPoseAnimator on {duplicate.name}");
                 }
 
                 PoseAnimator poseAnimator = duplicate.GetComponent<PoseAnimator>();
                 if (poseAnimator != null)
                 {
                     poseAnimator.enabled = false;
-                    UnityEngine.Debug.Log($"Disabled PoseAnimator on {duplicate.name}");
                 }
 
                 // Disable any other animation-related components
@@ -478,7 +570,6 @@ public class FrameRecorder : MonoBehaviour
                 if (animator != null)
                 {
                     animator.enabled = false;
-                    UnityEngine.Debug.Log($"Disabled Animator on {duplicate.name}");
                 }
 
                 // In edit mode, mark the duplicate as not editable to prevent further issues
@@ -487,8 +578,8 @@ public class FrameRecorder : MonoBehaviour
                     duplicate.hideFlags = HideFlags.DontSaveInEditor;
                 }
 
-                // Add to tracking list
-                duplicatedHands.Add(duplicate);
+                // Add to global tracking list
+                globalDuplicatedHands.Add(duplicate);
 
                 UnityEngine.Debug.Log($"Duplicated hand: {duplicate.name} at position {duplicatePosition}");
             }
@@ -497,14 +588,12 @@ public class FrameRecorder : MonoBehaviour
                 UnityEngine.Debug.LogError($"Failed to duplicate hand {i + 1}: {e.Message}");
             }
         }
-
-        UnityEngine.Debug.Log($"Boost intensity {moreSettings._boostIntensity}: Created {duplicateCount} hand duplicates");
     }
 
-    // Clean up duplicated hand gameobjects
-    void CleanupDuplicatedHands()
+    // Clean up all global duplicated hand gameobjects
+    static void CleanupGlobalDuplicatedHands()
     {
-        foreach (GameObject duplicate in duplicatedHands)
+        foreach (GameObject duplicate in globalDuplicatedHands)
         {
             if (duplicate != null)
             {
@@ -518,16 +607,111 @@ public class FrameRecorder : MonoBehaviour
                 }
             }
         }
-        duplicatedHands.Clear();
+        globalDuplicatedHands.Clear();
     }
 
-    // Method to change boost intensity at runtime
-    public void SetBoostIntensity(BoostIntensity newIntensity)
+    // Apply dark mode settings
+    void ApplyDarkModeSettings()
     {
-        if (moreSettings._boostIntensity != newIntensity)
+        // Get dark mode state from DarkModeController reference
+        bool isDarkMode = darkModeController != null ? darkModeController.IsDarkMode : false;
+        
+        // Update background color based on dark mode
+        if (isDarkMode)
         {
-            moreSettings._boostIntensity = newIntensity;
-            DuplicateHands(); // Recreate duplicates with new intensity
+            backgroundColor = moreSettings._backgroundColor;
+        }
+        else
+        {
+            backgroundColor = moreSettings._lightBackground;
+        }
+        
+        // Apply material to all hand meshes globally
+        ApplyMaterialToAllHandMeshes();
+        
+        // Update camera background color
+        if (targetCamera != null)
+        {
+            targetCamera.backgroundColor = backgroundColor;
+        }
+    }
+
+    // Apply material to all hand meshes globally (including inactive ones)
+    void ApplyMaterialToAllHandMeshes()
+    {
+        // Find all GameObjects in the scene, including inactive ones
+        GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        
+        foreach (GameObject obj in allGameObjects)
+        {
+            // Only process objects that are in the scene (not prefabs or assets)
+            if (obj.scene.IsValid())
+            {
+                SkinnedMeshRenderer skinnedMeshRenderer = obj.GetComponent<SkinnedMeshRenderer>();
+                if (skinnedMeshRenderer != null)
+                {
+                    // Check if this is likely a hand mesh (contains "hand" in name or has hand-related components)
+                    if (IsHandMesh(obj))
+                    {
+                        ApplyMaterialToHandMesh(obj);
+                    }
+                }
+            }
+        }
+        
+        // Also apply materials to global duplicated hands
+        foreach (GameObject duplicate in globalDuplicatedHands)
+        {
+            if (duplicate != null)
+            {
+                ApplyMaterialToHandMesh(duplicate);
+            }
+        }
+    }
+
+    // Check if a GameObject is likely a hand mesh (static version)
+    static bool IsHandMeshStatic(GameObject obj)
+    {
+        string objectName = obj.name.ToLower();
+        
+        // Check for hand-related keywords in the name
+        if (objectName.Contains("hand") || objectName.Contains("finger") || objectName.Contains("palm"))
+        {
+            return true;
+        }
+        
+        // Check for hand-related components
+        if (obj.GetComponent<HandPoseAnimator>() != null || obj.GetComponent<PoseAnimator>() != null)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+
+    // Check if a GameObject is likely a hand mesh (instance version)
+    bool IsHandMesh(GameObject obj)
+    {
+        return IsHandMeshStatic(obj);
+    }
+
+    // Apply material to a specific hand mesh
+    void ApplyMaterialToHandMesh(GameObject handMeshObject)
+    {
+        SkinnedMeshRenderer skinnedMeshRenderer = handMeshObject.GetComponent<SkinnedMeshRenderer>();
+        if (skinnedMeshRenderer != null)
+        {
+            // Get dark mode state from DarkModeController reference
+            bool isDarkMode = darkModeController != null ? darkModeController.IsDarkMode : false;
+            
+            if (isDarkMode && moreSettings._handLight != null)
+            {
+                skinnedMeshRenderer.material = moreSettings._handLight;
+            }
+            else if (!isDarkMode && moreSettings._handDark != null)
+            {
+                skinnedMeshRenderer.material = moreSettings._handDark;
+            }
         }
     }
 

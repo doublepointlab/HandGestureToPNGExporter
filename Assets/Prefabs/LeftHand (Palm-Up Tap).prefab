@@ -1361,6 +1361,7 @@ GameObject:
   - component: {fileID: 4199786747065948938}
   - component: {fileID: 3380690876508943351}
   - component: {fileID: 4184273347336343603}
+  - component: {fileID: 6421485902605509488}
   - component: {fileID: 6092469249554479725}
   - component: {fileID: 7366556443387584370}
   m_Layer: 0
@@ -1417,6 +1418,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   poseAnimator: {fileID: 6092469249554479725}
   videoClip: {fileID: 0}
+--- !u!114 &6421485902605509488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4058352913385424757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e63ac18fd89a41f786289617287bf7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceImage: {fileID: 0}
+  sourceSprite: {fileID: 21300000, guid: 9ab7bfaeed3004ceeb94c65f9d753000, type: 3}
+  targetSprite: {fileID: 21300000, guid: a9f6dc6a3670b4f3fbc9d38ff6360ecc, type: 3}
+  poseAnimator: {fileID: 0}
+  changeSpriteAfterPoseIndex: 4
 --- !u!114 &6092469249554479725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1458,23 +1476,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetCamera: {fileID: 0}
-  backgroundColor: {r: 0, g: 0, b: 0, a: 0}
-  outputFolder: PalmUpTap
-  openFolderAfterRecording: 1
-  isRecording: 1
-  outputWidth: 1280
-  outputHeight: 720
-  outputScale: 2
-  frameRate: 60
-  gifFrameRate: 30
+  fadeInOut: {fileID: 0}
+  moreSettings:
+    _backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+    _outputWidth: 1280
+    _outputHeight: 720
+    _outputScale: 2
+    _frameRate: 60
+    _gifFrameRate: 30
+    _handMesh: {fileID: 0}
+    _boostIntensity: 1
   exportAsMP4: 1
   exportAsPNGSequence: 0
   exportAsJPGSequence: 0
   exportAsGIF: 1
-  endFrame: 112
-  fadeInOut: {fileID: 0}
+  exportAsWebM: 0
   isFadingIn: 1
   isFadingOut: 1
+  isRecording: 1
+  startFrame: 0
+  endFrame: 112
+  outputName: 
+  frameRate: 60
 --- !u!1 &4150479243550708150
 GameObject:
   m_ObjectHideFlags: 0
