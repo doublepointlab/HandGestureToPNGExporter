@@ -2,34 +2,27 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
-public enum BoostIntensity
-{
-    x1 = 1,
-    x2 = 2,
-    x3 = 3,
-    x4 = 4,
-    x5 = 5
-}
+// Boost intensity is now an integer from 1-10
 
 public class BoostIntensityManager : MonoBehaviour
 {
-    [SerializeField] private BoostIntensity boostIntensity = BoostIntensity.x1;
+    [SerializeField, Range(1, 10)] private int boostIntensity = 1;
     
-    private BoostIntensity previousBoostIntensity = BoostIntensity.x1;
+    private int previousBoostIntensity = 1;
     private bool isProcessingBoostIntensity = false;
     
     // Static list to track all duplicated objects across all instances
     private static List<GameObject> globalDuplicatedObjects = new List<GameObject>();
     
     // Public property for boost intensity
-    public BoostIntensity BoostIntensity
+    public int BoostIntensity
     {
         get => boostIntensity;
         set
         {
             if (boostIntensity != value)
             {
-                boostIntensity = value;
+                boostIntensity = Mathf.Clamp(value, 1, 10); // Ensure value is within range
                 ApplyBoostIntensity();
             }
         }
@@ -54,7 +47,7 @@ public class BoostIntensityManager : MonoBehaviour
     void Start()
     {
         // Automatically recreate duplicates when entering play mode
-        if (Application.isPlaying && boostIntensity != BoostIntensity.x1)
+        if (Application.isPlaying && boostIntensity != 1)
         {
             UnityEngine.Debug.Log($"BoostIntensityManager: Auto-recreating duplicates for intensity {boostIntensity} on play mode start");
             ApplyBoostIntensity();
@@ -72,9 +65,9 @@ public class BoostIntensityManager : MonoBehaviour
     {
         UnityEngine.Debug.Log($"ApplyBoostIntensity called with intensity: {boostIntensity}");
         
-        if (boostIntensity == BoostIntensity.x1)
+        if (boostIntensity == 1)
         {
-            // Clean up existing duplicates when setting to x1
+            // Clean up existing duplicates when setting to 1
             CleanupAllDuplicatedObjects();
             return; // No duplication needed
         }
@@ -166,7 +159,7 @@ public class BoostIntensityManager : MonoBehaviour
     // Duplicate a SkinnedMeshRenderer object based on boost intensity
     private void DuplicateSkinnedMeshObject(GameObject originalObject)
     {
-        int duplicateCount = (int)boostIntensity - 1; // Subtract 1 because original object already exists
+        int duplicateCount = boostIntensity - 1; // Subtract 1 because original object already exists
         
         for (int i = 0; i < duplicateCount; i++)
         {
@@ -229,8 +222,8 @@ public class BoostIntensityManager : MonoBehaviour
         // Clean up existing duplicates
         CleanupAllDuplicatedObjects();
         
-        // Recreate duplicates if intensity is not x1
-        if (boostIntensity != BoostIntensity.x1)
+        // Recreate duplicates if intensity is not 1
+        if (boostIntensity != 1)
         {
             UnityEngine.Debug.Log($"Recreating duplicates for intensity: {boostIntensity}");
             ApplyBoostIntensity();
@@ -244,9 +237,9 @@ public class BoostIntensityManager : MonoBehaviour
     }
     
     // Public method to manually apply boost intensity (useful for runtime)
-    public void SetBoostIntensity(BoostIntensity newIntensity)
+    public void SetBoostIntensity(int newIntensity)
     {
-        boostIntensity = newIntensity;
+        boostIntensity = Mathf.Clamp(newIntensity, 1, 10); // Ensure value is within range
         ApplyBoostIntensity();
     }
     
