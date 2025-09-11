@@ -2262,6 +2262,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
+    - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
+        type: 3}
       propertyPath: durations.Array.size
       value: 11
       objectReference: {fileID: 0}
@@ -8418,6 +8423,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
+    - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
+        type: 3}
       propertyPath: durations.Array.size
       value: 15
       objectReference: {fileID: 0}
@@ -12061,6 +12071,11 @@ PrefabInstance:
       propertyPath: animationCount
       value: 30
       objectReference: {fileID: 0}
+    - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
+        type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
     - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
       propertyPath: handPoses.Array.size
@@ -28693,6 +28708,7 @@ MonoBehaviour:
   - 0.231
   - 0.246
   animationCount: 1080
+  globalFrameRecorder: {fileID: 0}
 --- !u!114 &778330737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36102,6 +36118,11 @@ PrefabInstance:
       propertyPath: animationCount
       value: 103
       objectReference: {fileID: 0}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: durations.Array.size
@@ -44931,7 +44952,7 @@ MonoBehaviour:
     _outputScale: 2
     _frameRate: 60
     _gifFrameRate: 30
-    _boostIntensity: 4
+    _boostIntensity: 1
     _handLight: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
     _handDark: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   exportAsMP4: 1
@@ -48791,51 +48812,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1991826116}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1355280777
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1355280779}
-  - component: {fileID: 1355280778}
-  m_Layer: 0
-  m_Name: DarkModeController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1355280778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1355280777}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16acc92604e1c4169999fd4fa9c94e4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _darkMode: 1
---- !u!4 &1355280779
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1355280777}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1357442657
 GameObject:
@@ -57979,6 +57955,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
+    - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
+        type: 3}
       propertyPath: durations.Array.size
       value: 7
       objectReference: {fileID: 0}
@@ -65845,6 +65826,7 @@ MonoBehaviour:
   - 0.236
   - 0.213
   animationCount: 1080
+  globalFrameRecorder: {fileID: 0}
 --- !u!114 &1835420541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77725,6 +77707,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4040412801941823475, guid: 3c4dc1a20985f42a7b4d9a1eceae3483,
         type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
+    - target: {fileID: 4040412801941823475, guid: 3c4dc1a20985f42a7b4d9a1eceae3483,
+        type: 3}
       propertyPath: handPoses.Array.data[0]
       value: 
       objectReference: {fileID: 1429055964}
@@ -78468,6 +78455,11 @@ PrefabInstance:
       propertyPath: animationCount
       value: 199
       objectReference: {fileID: 0}
+    - target: {fileID: 6092469249554479725, guid: 76644adf324b84d0b986d132861d6bf0,
+        type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
     - target: {fileID: 6092469249554479725, guid: 76644adf324b84d0b986d132861d6bf0,
         type: 3}
       propertyPath: durations.Array.size
@@ -80277,6 +80269,7 @@ MonoBehaviour:
   - 0.231
   - 0.246
   animationCount: 1080
+  globalFrameRecorder: {fileID: 0}
 --- !u!1 &2072885752414401720
 GameObject:
   m_ObjectHideFlags: 0
@@ -82021,6 +82014,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
         type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
+    - target: {fileID: 6919513331291495757, guid: dd44725887751420db72919372a7fe49,
+        type: 3}
       propertyPath: durations.Array.size
       value: 14
       objectReference: {fileID: 0}
@@ -82433,6 +82431,11 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1159194588170955867, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
+        type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
     - target: {fileID: 1159194588170955867, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
         type: 3}
       propertyPath: handPoses.Array.data[0]
@@ -83458,6 +83461,11 @@ PrefabInstance:
       propertyPath: frameRecorder
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 8274141051311375569, guid: e4f95f29934fa47f4a5c0f32d0b4eeb0,
+        type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
     - target: {fileID: 8274141051311375569, guid: e4f95f29934fa47f4a5c0f32d0b4eeb0,
         type: 3}
       propertyPath: handPoses.Array.data[0]
@@ -85056,6 +85064,7 @@ MonoBehaviour:
   - 0.236
   - 0.213
   animationCount: 1080
+  globalFrameRecorder: {fileID: 0}
 --- !u!1 &5984006585238983064
 GameObject:
   m_ObjectHideFlags: 0
@@ -86980,6 +86989,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
+    - target: {fileID: 7324047064153665609, guid: 6e30df34ca4ea4c76ac4269e7399a919,
+        type: 3}
       propertyPath: durations.Array.size
       value: 13
       objectReference: {fileID: 0}
@@ -87445,6 +87459,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 332.198
       objectReference: {fileID: 0}
+    - target: {fileID: 1934565554279526855, guid: 09a25528c3de44670b95850b93c57988,
+        type: 3}
+      propertyPath: globalFrameRecorder
+      value: 
+      objectReference: {fileID: 1250024770}
     - target: {fileID: 1934565554279526855, guid: 09a25528c3de44670b95850b93c57988,
         type: 3}
       propertyPath: durations.Array.size
@@ -89503,4 +89522,3 @@ SceneRoots:
   - {fileID: 1865685816}
   - {fileID: 53437979}
   - {fileID: 246953417}
-  - {fileID: 1355280779}
