@@ -44815,6 +44815,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1250024771}
   - component: {fileID: 1250024770}
+  - component: {fileID: 1250024772}
   m_Layer: 0
   m_Name: Exporter
   m_TagString: Untagged
@@ -44844,7 +44845,6 @@ MonoBehaviour:
     _outputScale: 2
     _frameRate: 60
     _gifFrameRate: 30
-    _boostIntensity: 3
     _handLight: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
     _handDark: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   exportAsMP4: 1
@@ -44858,7 +44858,7 @@ MonoBehaviour:
   enableBounceAnimation: 1
   bounceDuration: 0.3
   bounceIntensity: 1.05
-  isRecording: 1
+  isRecording: 0
   startFrame: 0
   endFrame: 0
   frameRate: 0
@@ -44877,6 +44877,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1250024772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250024769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 958095ab579cf407bb5597bbd8f1d2a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boostIntensity: 2
 --- !u!1 &1251296638
 GameObject:
   m_ObjectHideFlags: 0

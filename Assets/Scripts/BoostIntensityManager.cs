@@ -14,7 +14,6 @@ public enum BoostIntensity
 public class BoostIntensityManager : MonoBehaviour
 {
     [SerializeField] private BoostIntensity boostIntensity = BoostIntensity.x1;
-    [SerializeField] private float spacing = 2.0f; // spacing is now unused, but kept for serialization compatibility
     
     private BoostIntensity previousBoostIntensity = BoostIntensity.x1;
     private bool isProcessingBoostIntensity = false;
@@ -49,6 +48,16 @@ public class BoostIntensityManager : MonoBehaviour
                 ApplyBoostIntensity();
                 isProcessingBoostIntensity = false;
             };
+        }
+    }
+    
+    void Start()
+    {
+        // Automatically recreate duplicates when entering play mode
+        if (Application.isPlaying && boostIntensity != BoostIntensity.x1)
+        {
+            UnityEngine.Debug.Log($"BoostIntensityManager: Auto-recreating duplicates for intensity {boostIntensity} on play mode start");
+            ApplyBoostIntensity();
         }
     }
     
@@ -212,6 +221,22 @@ public class BoostIntensityManager : MonoBehaviour
         globalDuplicatedObjects.Clear();
     }
     
+    // Clean up duplicates and recreate them (useful for play mode transitions)
+    public void RefreshDuplicates()
+    {
+        UnityEngine.Debug.Log($"RefreshDuplicates called with intensity: {boostIntensity}");
+        
+        // Clean up existing duplicates
+        CleanupAllDuplicatedObjects();
+        
+        // Recreate duplicates if intensity is not x1
+        if (boostIntensity != BoostIntensity.x1)
+        {
+            UnityEngine.Debug.Log($"Recreating duplicates for intensity: {boostIntensity}");
+            ApplyBoostIntensity();
+        }
+    }
+    
     // Public method to manually clean up (useful for runtime)
     public void CleanupDuplicates()
     {
@@ -223,5 +248,12 @@ public class BoostIntensityManager : MonoBehaviour
     {
         boostIntensity = newIntensity;
         ApplyBoostIntensity();
+    }
+    
+    // Context menu for easy testing
+    [ContextMenu("Refresh Duplicates")]
+    public void RefreshDuplicatesContextMenu()
+    {
+        RefreshDuplicates();
     }
 }
