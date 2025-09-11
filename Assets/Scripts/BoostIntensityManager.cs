@@ -14,7 +14,7 @@ public enum BoostIntensity
 public class BoostIntensityManager : MonoBehaviour
 {
     [SerializeField] private BoostIntensity boostIntensity = BoostIntensity.x1;
-    [SerializeField] private float spacing = 2.0f;
+    [SerializeField] private float spacing = 2.0f; // spacing is now unused, but kept for serialization compatibility
     
     private BoostIntensity previousBoostIntensity = BoostIntensity.x1;
     private bool isProcessingBoostIntensity = false;
@@ -163,16 +163,12 @@ public class BoostIntensityManager : MonoBehaviour
         {
             try
             {
-                // Calculate position offset for this duplicate
-                Vector3 offset = new Vector3((i + 1) * spacing, 0, 0);
-                Vector3 duplicatePosition = originalObject.transform.position + offset;
+                // No offset: all duplicates at the same position as the original
+                Vector3 duplicatePosition = originalObject.transform.position;
                 
                 // Instantiate the duplicate
                 GameObject duplicate = Instantiate(originalObject, duplicatePosition, originalObject.transform.rotation, originalObject.transform.parent);
                 duplicate.name = originalObject.name + "_Boost_" + (i + 1);
-                
-                // Disable animation components on the duplicate
-                DisableAnimationComponents(duplicate);
                 
                 // Mark as don't save in editor to avoid scene pollution
                 if (!Application.isPlaying)
@@ -192,37 +188,6 @@ public class BoostIntensityManager : MonoBehaviour
         }
     }
     
-    // Disable animation components on duplicated objects
-    private void DisableAnimationComponents(GameObject obj)
-    {
-        // Disable PoseAnimator if present
-        PoseAnimator poseAnimator = obj.GetComponent<PoseAnimator>();
-        if (poseAnimator != null)
-        {
-            poseAnimator.enabled = false;
-        }
-        
-        // Disable HandPoseAnimator if present
-        HandPoseAnimator handPoseAnimator = obj.GetComponent<HandPoseAnimator>();
-        if (handPoseAnimator != null)
-        {
-            handPoseAnimator.enabled = false;
-        }
-        
-        // Disable Animator if present
-        Animator animator = obj.GetComponent<Animator>();
-        if (animator != null)
-        {
-            animator.enabled = false;
-        }
-        
-        // Disable Animation if present
-        Animation animation = obj.GetComponent<Animation>();
-        if (animation != null)
-        {
-            animation.enabled = false;
-        }
-    }
     
     // Clean up all duplicated objects
     private void CleanupAllDuplicatedObjects()
