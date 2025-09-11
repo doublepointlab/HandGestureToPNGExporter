@@ -44844,7 +44844,7 @@ MonoBehaviour:
     _outputScale: 2
     _frameRate: 60
     _gifFrameRate: 30
-    _boostIntensity: 4
+    _boostIntensity: 3
     _handLight: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
     _handDark: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   exportAsMP4: 1

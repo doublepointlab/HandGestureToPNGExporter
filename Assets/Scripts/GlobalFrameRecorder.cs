@@ -111,25 +111,11 @@ public class GlobalFrameRecorder : MonoBehaviour
     // Called when values are changed in the Inspector
     void OnValidate()
     {
-        // Only run duplication in edit mode (not play mode)
-        if (!Application.isPlaying)
-        {
-        // Check if boost intensity has changed
-        if (moreSettings._boostIntensity != previousBoostIntensity && !isProcessingBoostIntensity)
-        {
-            isProcessingBoostIntensity = true;
-            // Defer the entire operation to avoid DestroyImmediate restrictions in OnValidate
-            EditorApplication.delayCall += () => {
-                previousBoostIntensity = moreSettings._boostIntensity;
-                globalBoostIntensity = moreSettings._boostIntensity;
-                ApplyGlobalBoostIntensity();
-                isProcessingBoostIntensity = false;
-            };
-        }
+        // BOOST INTENSITY LOGIC MOVED TO SEPARATE BoostIntensityManager SCRIPT
+        // This prevents boost intensity from running in play mode and causing issues
         
         // Apply dark mode settings
         ApplyDarkModeSettings();
-        }
     }
 
     // Method to toggle dark mode at runtime
@@ -234,7 +220,6 @@ public class GlobalFrameRecorder : MonoBehaviour
             UnityEngine.Debug.Log("Not recording. Fade in/out is off. Set isRecording to true if you want to record.");  
         }
         ConfigureCamera(); // Configure the camera settings
-        previousBoostIntensity = moreSettings._boostIntensity; // Initialize previous boost intensity
         
         // Apply dark mode settings
         ApplyDarkModeSettings();
