@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 
-public class FrameRecorder : MonoBehaviour
+public class GlobalFrameRecorder : MonoBehaviour
 {
     [SerializeField] private Camera targetCamera; // The camera to capture frames from
     [SerializeField] private FadeInOut fadeInOut; // Reference to FadeInOut script
@@ -19,19 +19,31 @@ public class FrameRecorder : MonoBehaviour
     [SerializeField] private bool exportAsWebM = false; // Export as WebM with alpha
     [SerializeField] private bool isFadingIn = false; // Flag to check if fading in
     [SerializeField] private bool isFadingOut = false; // Flag to check if fading out
-    [SerializeField] private DarkModeController darkModeController; // Reference to DarkModeController
+    [SerializeField] private bool isDarkMode = false; // Dark mode toggle
+    
+    [Header("Bounce Animation Settings")]
+    [SerializeField] private bool enableBounceAnimation = true; // Enable bounce animation
+    [SerializeField] private float bounceDuration = 0.5f; // Duration of bounce animation
+    [SerializeField] private float bounceIntensity = 1.2f; // Intensity of bounce animation
     private static BoostIntensity globalBoostIntensity = BoostIntensity.x1; // Global boost intensity state
     private static List<GameObject> globalDuplicatedHands = new List<GameObject>(); // Global list to track duplicated hands
+    private bool isProcessingBoostIntensity = false; // Flag to prevent multiple rapid calls
 
-    public bool isRecording = true; // Flag to check if recording is in progress
+    [SerializeField] public bool isRecording = true; // Flag to check if recording is in progress
     [HideInInspector] public int startFrame = 0; // The frame to start recording
     [HideInInspector] public int endFrame = 100; // The frame to stop recording
 
-    [SerializeField] private string outputName; // The folder to save the frames
+    // Current active GameObject with PoseAnimator
+    private GameObject currentActiveTarget;
+    private string currentOutputName;
+    private PoseAnimator currentPoseAnimator;
+    
+    // Public getter for current output name
+    private string CurrentOutputName => currentOutputName;
+    
     private int frameCount = 0; // Counter for frames
     private int actualFrameCount = 0; // Counter for actual saved frames
     private float fadeDuration = 1.0f; // Duration of fade in/out
-    private int frameInterval = 1; // Frame interval for continuous recording
 
     [HideInInspector] private Color backgroundColor; // Background color
     [HideInInspector] private int outputWidth; // The width of the output image
@@ -40,9 +52,10 @@ public class FrameRecorder : MonoBehaviour
     [HideInInspector] public int frameRate; // The frame rate for capturing frames
     [HideInInspector] private int gifFrameRate; // The frame rate for capturing frames for GIF
     [HideInInspector] private BoostIntensity boostIntensity; // Boost intensity for hand duplication
+ 
 
     [System.Serializable]
-    public class MoreSettings
+    private class MoreSettings
     {
         public Color _backgroundColor = new Color(0.1f, 0.1f, 0.1f, 1); // Dark background color
         public Color _lightBackground = new Color(1, 1, 1, 1); // Light background color
@@ -57,7 +70,7 @@ public class FrameRecorder : MonoBehaviour
     }
 
     // Enum for output scale
-    public enum OutputScale
+    private enum OutputScale
     {
         x1 = 1,
         x2 = 2,
@@ -66,7 +79,7 @@ public class FrameRecorder : MonoBehaviour
     }
 
     // Enum for boost intensity
-    public enum BoostIntensity
+    private enum BoostIntensity
     {
         x1 = 1,
         x2 = 2,
@@ -82,6 +95,7 @@ public class FrameRecorder : MonoBehaviour
 
     void Awake()
     {
+        
         backgroundColor = moreSettings._backgroundColor;
         outputWidth = moreSettings._outputWidth;
         outputHeight = moreSettings._outputHeight;
@@ -101,20 +115,102 @@ public class FrameRecorder : MonoBehaviour
         if (!Application.isPlaying)
         {
         // Check if boost intensity has changed
-        if (moreSettings._boostIntensity != previousBoostIntensity)
+        if (moreSettings._boostIntensity != previousBoostIntensity && !isProcessingBoostIntensity)
         {
-            previousBoostIntensity = moreSettings._boostIntensity;
-            if (globalBoostIntensity != moreSettings._boostIntensity)
-            {
+            isProcessingBoostIntensity = true;
+            // Defer the entire operation to avoid DestroyImmediate restrictions in OnValidate
+            EditorApplication.delayCall += () => {
+                previousBoostIntensity = moreSettings._boostIntensity;
                 globalBoostIntensity = moreSettings._boostIntensity;
                 ApplyGlobalBoostIntensity();
-            }
+                isProcessingBoostIntensity = false;
+            };
         }
         
         // Apply dark mode settings
         ApplyDarkModeSettings();
         }
     }
+
+    // Method to toggle dark mode at runtime
+    private void ToggleDarkMode()
+    {
+        isDarkMode = !isDarkMode;
+        UpdateOutputName();
+        ApplyDarkModeSettings();
+        UnityEngine.Debug.Log($"Dark mode toggled to: {isDarkMode}");
+    }
+
+    // Method to set dark mode
+    private void SetDarkMode(bool darkMode)
+    {
+        isDarkMode = darkMode;
+        UpdateOutputName();
+        ApplyDarkModeSettings();
+        UnityEngine.Debug.Log($"Dark mode set to: {isDarkMode}");
+    }
+
+    // Method to toggle recording (for external access)
+    private void ToggleRecording()
+    {
+        isRecording = !isRecording;
+        UnityEngine.Debug.Log($"Recording {(isRecording ? "STARTED" : "STOPPED")} - Toggle called");
+    }
+
+    // Update output name when dark mode changes
+    private void UpdateOutputName()
+    {
+        if (currentActiveTarget != null)
+        {
+            currentOutputName = GetOutputNameWithMode(currentActiveTarget.name);
+            // Recreate output folder with new name
+            CreateOutputFolder();
+        }
+    }
+
+    // Trigger bounce animation on the current active target
+    public void TriggerBounceAnimation()
+    {
+        if (currentActiveTarget == null || !enableBounceAnimation) return;
+        
+        // Find Image component in the target or its children
+        UnityEngine.UI.Image targetImage = currentActiveTarget.GetComponentInChildren<UnityEngine.UI.Image>();
+        if (targetImage == null)
+        {
+            UnityEngine.Debug.LogWarning("No Image component found for bounce animation");
+            return;
+        }
+        
+        // Store original scale
+        Vector3 originalScale = targetImage.transform.localScale;
+        
+        // Create bounce animation using LeanTween
+        LeanTween.scale(targetImage.gameObject, originalScale * bounceIntensity, bounceDuration * 0.5f)
+            .setEaseOutQuad()
+            .setOnComplete(() => {
+                LeanTween.scale(targetImage.gameObject, originalScale, bounceDuration * 0.5f)
+                    .setEaseInQuad();
+            });
+        
+        UnityEngine.Debug.Log($"Bounce animation triggered on {currentActiveTarget.name} (intensity: {bounceIntensity}, duration: {bounceDuration})");
+    }
+
+    // Set bounce animation settings
+    private void SetBounceSettings(bool enabled, float duration, float intensity)
+    {
+        enableBounceAnimation = enabled;
+        bounceDuration = duration;
+        bounceIntensity = intensity;
+        UnityEngine.Debug.Log($"Bounce settings updated - Enabled: {enabled}, Duration: {duration}, Intensity: {intensity}");
+    }
+
+    // Get bounce animation settings
+    public (bool enabled, float duration, float intensity) GetBounceSettings()
+    {
+        return (enableBounceAnimation, bounceDuration, bounceIntensity);
+    }
+ 
+
     void Start()
     {
         // Ensure GIF frame rate is not higher than the main frame rate
@@ -124,11 +220,10 @@ public class FrameRecorder : MonoBehaviour
             return;
         }     
         fadeDuration = FadeInOut.fadeDuration; // Set the fade duration
-        frameInterval = endFrame - startFrame;
 
         if (isRecording)
         {
-            UnityEngine.Debug.Log("Recording started.");
+            UnityEngine.Debug.Log("Global recording started.");
 
             if(isFadingIn)
             {
@@ -138,34 +233,70 @@ public class FrameRecorder : MonoBehaviour
         else{
             UnityEngine.Debug.Log("Not recording. Fade in/out is off. Set isRecording to true if you want to record.");  
         }
-        CreateOutputFolder();
         ConfigureCamera(); // Configure the camera settings
         previousBoostIntensity = moreSettings._boostIntensity; // Initialize previous boost intensity
         
-        // Subscribe to dark mode changes
-        SubscribeToDarkModeChanges();
+        // Apply dark mode settings
+        ApplyDarkModeSettings();
         
         StartRecording(); // Start the recording process
+    }
+
+    // Register a GameObject with PoseAnimator as the current active target
+    private void RegisterActiveTarget(GameObject target)
+    {
+        if (target == null) return;
         
+        currentActiveTarget = target;
+        currentOutputName = GetOutputNameWithMode(target.name);
+        currentPoseAnimator = target.GetComponent<PoseAnimator>();
+        
+        // Reset recording for new target
+        ResetRecording();
+        
+        // Create output folder for this target
+        CreateOutputFolder();
+        
+        UnityEngine.Debug.Log($"Registered active target: {currentActiveTarget.name} -> Output name: {currentOutputName} (mode: {(isDarkMode ? "dark" : "light")})");
+    }
+
+    // Unregister the current active target
+    public void UnregisterActiveTarget()
+    {
+        if (currentActiveTarget != null)
+        {
+            UnityEngine.Debug.Log($"Unregistered active target: {currentOutputName}");
+        }
+        currentActiveTarget = null;
+        currentOutputName = null;
+        currentPoseAnimator = null;
     }
 
     // Create the output folder
     void CreateOutputFolder()
     {
-        if (exportAsPNGSequence && !Directory.Exists(Path.Combine("Recordings", "PNG", outputName)))
+        if (string.IsNullOrEmpty(currentOutputName)) return;
+        
+        if (exportAsPNGSequence && !Directory.Exists(Path.Combine("Recordings", "PNG", currentOutputName)))
         {
-            Directory.CreateDirectory(Path.Combine("Recordings", "PNG", outputName));
+            Directory.CreateDirectory(Path.Combine("Recordings", "PNG", currentOutputName));
         }
-        if (exportAsJPGSequence && !Directory.Exists(Path.Combine("Recordings", "JPG", outputName)))
+        if (exportAsJPGSequence && !Directory.Exists(Path.Combine("Recordings", "JPG", currentOutputName)))
         {
-            Directory.CreateDirectory(Path.Combine("Recordings", "JPG", outputName));
+            Directory.CreateDirectory(Path.Combine("Recordings", "JPG", currentOutputName));
         }       
     }
 
     void LateUpdate()
     {
+        // Only record if we have an active target
+        if (currentActiveTarget == null) return;
+        
+        // Get the current end frame from the PoseAnimator
+        int currentEndFrame = GetCurrentEndFrame();
+        
         // Capture frame if within the recording range
-        if (isRecording && frameCount >= startFrame && frameCount <= endFrame)
+        if (isRecording && frameCount >= startFrame && frameCount <= currentEndFrame)
         {
             CaptureFrame();
         }
@@ -173,16 +304,8 @@ public class FrameRecorder : MonoBehaviour
 
         if (isRecording)
         {
-            // Update frame range for continuous playback
-            if (frameCount > endFrame)
-            {            
-                startFrame = endFrame + 1;
-                endFrame += frameInterval; 
-                frameCount = startFrame;
-            }
-
             // Trigger fade out if required
-            if (isFadingOut && frameCount == (endFrame - (int)((fadeDuration) * frameRate)))
+            if (isFadingOut && frameCount == (currentEndFrame - (int)((fadeDuration) * frameRate)))
             {
                 fadeInOut.TriggerFadeOut();
             }
@@ -191,8 +314,23 @@ public class FrameRecorder : MonoBehaviour
                 fadeInOut.TriggerFadeIn();
             }         
         }
+        
+        // Debug logging every 30 frames
+        if (frameCount % 30 == 0)
+        {
+            UnityEngine.Debug.Log($"Frame: {frameCount}, Start: {startFrame}, End: {currentEndFrame}, Actual: {actualFrameCount}, Target: {currentOutputName}");
+        }
+        
+        // Log when we start and stop recording
+        if (frameCount == startFrame && isRecording)
+        {
+            UnityEngine.Debug.Log($"Started recording at frame {frameCount}");
+        }
+        if (frameCount == currentEndFrame && isRecording)
+        {
+            UnityEngine.Debug.Log($"Finished recording at frame {frameCount}, captured {actualFrameCount} frames");
+        }
     }
-
 
     // Capture a single frame
     void CaptureFrame()
@@ -218,8 +356,8 @@ public class FrameRecorder : MonoBehaviour
         if (exportAsJPGSequence || exportAsGIF)
         {
             bytes = texture.EncodeToJPG();
-            Directory.CreateDirectory(Path.Combine("Recordings", "JPG", outputName));
-            filePath = Path.Combine("Recordings", "JPG", outputName, $"{outputName}_frame_{actualFrameCount:D}.jpg");
+            Directory.CreateDirectory(Path.Combine("Recordings", "JPG", currentOutputName));
+            filePath = Path.Combine("Recordings", "JPG", currentOutputName, $"{currentOutputName}_frame_{actualFrameCount:D}.jpg");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         }        
@@ -228,8 +366,8 @@ public class FrameRecorder : MonoBehaviour
         if (exportAsPNGSequence || exportAsMP4 || exportAsWebM)
         {
             bytes = texture.EncodeToPNG();
-            Directory.CreateDirectory(Path.Combine("Recordings", "PNG", outputName));
-            filePath = Path.Combine("Recordings", "PNG", outputName, $"{outputName}_frame_{actualFrameCount:D}.png");
+            Directory.CreateDirectory(Path.Combine("Recordings", "PNG", currentOutputName));
+            filePath = Path.Combine("Recordings", "PNG", currentOutputName, $"{currentOutputName}_frame_{actualFrameCount:D}.png");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         } 
@@ -238,13 +376,13 @@ public class FrameRecorder : MonoBehaviour
         if (exportAsJPGSequence && exportAsPNGSequence)
         {
             bytes = texture.EncodeToJPG();
-            Directory.CreateDirectory(Path.Combine("Recordings", "JPG", outputName));
-            filePath = Path.Combine("Recordings", "JPG", outputName, $"{outputName}_frame_{actualFrameCount:D}.jpg");
+            Directory.CreateDirectory(Path.Combine("Recordings", "JPG", currentOutputName));
+            filePath = Path.Combine("Recordings", "JPG", currentOutputName, $"{currentOutputName}_frame_{actualFrameCount:D}.jpg");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
             bytes = texture.EncodeToPNG();
-            Directory.CreateDirectory(Path.Combine("Recordings", "PNG", outputName));
-            filePath = Path.Combine("Recordings", "PNG", outputName, $"{outputName}_frame_{actualFrameCount:D}.png");
+            Directory.CreateDirectory(Path.Combine("Recordings", "PNG", currentOutputName));
+            filePath = Path.Combine("Recordings", "PNG", currentOutputName, $"{currentOutputName}_frame_{actualFrameCount:D}.png");
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             File.WriteAllBytes(filePath, bytes);
         } 
@@ -259,10 +397,49 @@ public class FrameRecorder : MonoBehaviour
     }
 
     // Start the recording process
-    public void StartRecording()
+    private void StartRecording()
     {
         frameCount = 0;
         actualFrameCount = 0;
+        Time.captureFramerate = frameRate;        
+        Application.targetFrameRate = frameRate;
+    }
+
+    // Set the end frame for the current recording session
+    public void SetEndFrame(int endFrame)
+    {
+        this.endFrame = endFrame;
+    }
+
+    // Get the current end frame from the active PoseAnimator
+    public int GetCurrentEndFrame()
+    {
+        if (currentPoseAnimator != null)
+        {
+            // Calculate total frames from the PoseAnimator's durations
+            float totalFrames = 0;
+            foreach (var duration in currentPoseAnimator.durations)
+            {
+                totalFrames += Mathf.RoundToInt(duration * frameRate);
+            }
+            return (int)totalFrames;
+        }
+        return endFrame; // Fallback to stored end frame
+    }
+
+    // Generate output name with dark/light mode suffix
+    private string GetOutputNameWithMode(string baseName)
+    {
+        string modeSuffix = isDarkMode ? "_dark" : "_light";
+        return baseName + modeSuffix;
+    }
+
+    // Reset recording for new target
+    private void ResetRecording()
+    {
+        frameCount = 0;
+        actualFrameCount = 0;
+        startFrame = 0;
         Time.captureFramerate = frameRate;        
         Application.targetFrameRate = frameRate;
     }
@@ -292,59 +469,34 @@ public class FrameRecorder : MonoBehaviour
     // Handle object destruction
     void OnDestroy()
     {
-        // Unsubscribe from dark mode changes
-        UnsubscribeFromDarkModeChanges();
         // Cleanup handled automatically by Unity
-    }
-
-    // Subscribe to dark mode changes
-    void SubscribeToDarkModeChanges()
-    {
-        if (darkModeController != null)
-        {
-            darkModeController.OnDarkModeChanged += OnDarkModeStateChanged;
-        }
-    }
-
-    // Unsubscribe from dark mode changes
-    void UnsubscribeFromDarkModeChanges()
-    {
-        if (darkModeController != null)
-        {
-            darkModeController.OnDarkModeChanged -= OnDarkModeStateChanged;
-        }
-    }
-
-    // Handle dark mode state changes
-    void OnDarkModeStateChanged(bool isDarkMode)
-    {
-        // Update references accordingly
-        ApplyDarkModeSettings();
     }
 
     // Open the output folder in the file explorer and select the exported file
     // Priority: MP4 > GIF > WebM
     void OpenOutputFolder()
     {
+        if (string.IsNullOrEmpty(currentOutputName)) return;
+        
         string filePath = string.Empty;
         
         // Check export flags in priority order
         if (exportAsMP4)
         {
-            filePath = Path.Combine("Recordings", "MP4", $"{outputName}.mp4");
+            filePath = Path.Combine("Recordings", "MP4", $"{currentOutputName}.mp4");
         }
         else if (exportAsGIF)
         {
-            filePath = Path.Combine("Recordings", "GIF", $"{outputName}.gif");
+            filePath = Path.Combine("Recordings", "GIF", $"{currentOutputName}.gif");
         }
         else if (exportAsWebM)
         {
-            filePath = Path.Combine("Recordings", "WebM", $"{outputName}.webm");
+            filePath = Path.Combine("Recordings", "WebM", $"{currentOutputName}.webm");
         }
         else
         {
             // If no exports are enabled, default to PNG folder
-            filePath = Path.Combine("Recordings", "PNG", outputName);
+            filePath = Path.Combine("Recordings", "PNG", currentOutputName);
         }
         
         #if UNITY_EDITOR_WIN
@@ -357,9 +509,11 @@ public class FrameRecorder : MonoBehaviour
     // Export the recorded frames to MP4
     void ExportToMP4()
     {
+        if (string.IsNullOrEmpty(currentOutputName)) return;
+        
         string ffmpegPath = "/usr/local/bin/ffmpeg";
-        string inputPattern = Path.Combine("Recordings", "PNG", outputName, $"{outputName}_frame_%d.png");
-        string outputFilePath = Path.Combine("Recordings", "MP4", $"{outputName}.mp4");
+        string inputPattern = Path.Combine("Recordings", "PNG", currentOutputName, $"{currentOutputName}_frame_%d.png");
+        string outputFilePath = Path.Combine("Recordings", "MP4", $"{currentOutputName}.mp4");
         if (File.Exists(outputFilePath))
         {
             File.Delete(outputFilePath);
@@ -391,9 +545,11 @@ public class FrameRecorder : MonoBehaviour
     // Export the recorded frames to GIF
     void ExportToGIF()
     {
+        if (string.IsNullOrEmpty(currentOutputName)) return;
+        
         string ffmpegPath = "/usr/local/bin/ffmpeg";
-        string inputPattern = Path.Combine("Recordings", "JPG", outputName, $"{outputName}_frame_%d.jpg");
-        string outputFilePath = Path.Combine("Recordings", "GIF", $"{outputName}.gif");
+        string inputPattern = Path.Combine("Recordings", "JPG", currentOutputName, $"{currentOutputName}_frame_%d.jpg");
+        string outputFilePath = Path.Combine("Recordings", "GIF", $"{currentOutputName}.gif");
         if (File.Exists(outputFilePath))
         {
             File.Delete(outputFilePath);
@@ -428,9 +584,11 @@ public class FrameRecorder : MonoBehaviour
     // Export the recorded frames to WebM with alpha
     void ExportToWebM()
     {
+        if (string.IsNullOrEmpty(currentOutputName)) return;
+        
         string ffmpegPath = "/usr/local/bin/ffmpeg";
-        string inputPattern = Path.Combine("Recordings", "PNG", outputName, $"{outputName}_frame_%d.png");
-        string outputFilePath = Path.Combine("Recordings", "WebM", $"{outputName}.webm");
+        string inputPattern = Path.Combine("Recordings", "PNG", currentOutputName, $"{currentOutputName}_frame_%d.png");
+        string outputFilePath = Path.Combine("Recordings", "WebM", $"{currentOutputName}.webm");
         if (File.Exists(outputFilePath))
         {
             File.Delete(outputFilePath);
@@ -462,27 +620,24 @@ public class FrameRecorder : MonoBehaviour
         }
     }
 
-
-
     // Method to change boost intensity at runtime
-    public void SetBoostIntensity(BoostIntensity newIntensity)
+    private void SetBoostIntensity(BoostIntensity newIntensity)
     {
         if (moreSettings._boostIntensity != newIntensity)
         {
             moreSettings._boostIntensity = newIntensity;
             globalBoostIntensity = newIntensity;
-            ApplyGlobalBoostIntensity();
+            ApplyGlobalBoostIntensity(); // Recreate duplicates with new intensity
         }
     }
 
-
     // Apply global dark mode settings to all FrameRecorder instances (including inactive ones)
-    public static void ApplyGlobalDarkModeSettings()
+    private static void ApplyGlobalDarkModeSettings()
     {
-        // Find all FrameRecorder instances in the scene, including inactive ones
-        FrameRecorder[] allFrameRecorders = Resources.FindObjectsOfTypeAll<FrameRecorder>();
+        // Find all GlobalFrameRecorder instances in the scene, including inactive ones
+        GlobalFrameRecorder[] allFrameRecorders = Resources.FindObjectsOfTypeAll<GlobalFrameRecorder>();
         
-        foreach (FrameRecorder frameRecorder in allFrameRecorders)
+        foreach (GlobalFrameRecorder frameRecorder in allFrameRecorders)
         {
             if (frameRecorder != null && frameRecorder.gameObject.scene.IsValid())
             {
@@ -491,19 +646,20 @@ public class FrameRecorder : MonoBehaviour
         }
     }
 
-    // Apply global boost intensity to duplicate all hand meshes
+    // Apply global boost intensity to duplicate all SkinnedMeshRenderer objects
     static void ApplyGlobalBoostIntensity()
     {
-        // Clean up existing duplicates first
-        CleanupGlobalDuplicatedHands();
+        UnityEngine.Debug.Log($"ApplyGlobalBoostIntensity called with intensity: {globalBoostIntensity}");
         
         if (globalBoostIntensity == BoostIntensity.x1)
         {
+            // Clean up existing duplicates when setting to x1
+            CleanupGlobalDuplicatedHands();
             return; // No duplication needed
         }
 
-        // Find all hand meshes in the scene (including inactive ones)
-        List<GameObject> originalHandMeshes = new List<GameObject>();
+        // Find all SkinnedMeshRenderer objects in the scene (including inactive ones)
+        List<GameObject> objectsToDuplicate = new List<GameObject>();
         
         // Get all GameObjects in the scene, including inactive ones
         GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
@@ -516,29 +672,48 @@ public class FrameRecorder : MonoBehaviour
                 SkinnedMeshRenderer skinnedMeshRenderer = obj.GetComponent<SkinnedMeshRenderer>();
                 if (skinnedMeshRenderer != null)
                 {
-                    // Check if this is likely a hand mesh and not already a duplicate
+                    // Check if this is likely a hand/mesh object and not already a duplicate
                     if (IsHandMeshStatic(obj) && !obj.name.Contains("_Boost_"))
                     {
-                        originalHandMeshes.Add(obj);
+                        objectsToDuplicate.Add(obj);
                     }
                 }
             }
         }
 
-        // Duplicate each original hand mesh
-        foreach (GameObject originalHand in originalHandMeshes)
-        {
-            DuplicateHandMesh(originalHand);
-        }
+        // Clean up existing duplicates first (only if we're going to create new ones)
+        CleanupGlobalDuplicatedHands();
         
-        UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {originalHandMeshes.Count} hand meshes");
+        // Small delay to ensure cleanup completes before duplication
+        if (!Application.isPlaying)
+        {
+            EditorApplication.delayCall += () => {
+                // Duplicate each object
+                foreach (GameObject originalObject in objectsToDuplicate)
+                {
+                    DuplicateSkinnedMeshObject(originalObject);
+                }
+                UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+            };
+        }
+        else
+        {
+            // Duplicate each object
+            foreach (GameObject originalObject in objectsToDuplicate)
+            {
+                DuplicateSkinnedMeshObject(originalObject);
+            }
+            UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+        }
     }
 
-    // Duplicate a specific hand mesh based on boost intensity
-    static void DuplicateHandMesh(GameObject originalHand)
+    // Duplicate a SkinnedMeshRenderer object based on boost intensity
+    static void DuplicateSkinnedMeshObject(GameObject originalObject)
     {
-        int duplicateCount = (int)globalBoostIntensity - 1; // Subtract 1 because original hand already exists
-        float spacing = 2.0f; // Spacing between duplicated hands
+        int duplicateCount = (int)globalBoostIntensity - 1; // Subtract 1 because original object already exists
+        float spacing = 2.0f; // Spacing between duplicated objects
+
+        UnityEngine.Debug.Log($"DuplicateSkinnedMeshObject called for {originalObject.name} with boost intensity {globalBoostIntensity}");
 
         for (int i = 0; i < duplicateCount; i++)
         {
@@ -546,11 +721,11 @@ public class FrameRecorder : MonoBehaviour
             {
                 // Calculate position offset for this duplicate
                 Vector3 offset = new Vector3((i + 1) * spacing, 0, 0);
-                Vector3 duplicatePosition = originalHand.transform.position + offset;
+                Vector3 duplicatePosition = originalObject.transform.position + offset;
 
                 // Instantiate the duplicate
-                GameObject duplicate = Instantiate(originalHand, duplicatePosition, originalHand.transform.rotation, originalHand.transform.parent);
-                duplicate.name = originalHand.name + "_Boost_" + (i + 1);
+                GameObject duplicate = Instantiate(originalObject, duplicatePosition, originalObject.transform.rotation, originalObject.transform.parent);
+                duplicate.name = originalObject.name + "_Boost_" + (i + 1);
 
                 // Disable animation components to prevent conflicts
                 HandPoseAnimator handPoseAnimator = duplicate.GetComponent<HandPoseAnimator>();
@@ -581,29 +756,34 @@ public class FrameRecorder : MonoBehaviour
                 // Add to global tracking list
                 globalDuplicatedHands.Add(duplicate);
 
-                UnityEngine.Debug.Log($"Duplicated hand: {duplicate.name} at position {duplicatePosition}");
+                UnityEngine.Debug.Log($"Duplicated SkinnedMeshRenderer: {duplicate.name} at position {duplicatePosition}");
             }
             catch (System.Exception e)
             {
-                UnityEngine.Debug.LogError($"Failed to duplicate hand {i + 1}: {e.Message}");
+                UnityEngine.Debug.LogError($"Failed to duplicate SkinnedMeshRenderer {i + 1}: {e.Message}");
             }
         }
     }
 
+
     // Clean up all global duplicated hand gameobjects
     static void CleanupGlobalDuplicatedHands()
     {
-        foreach (GameObject duplicate in globalDuplicatedHands)
+        UnityEngine.Debug.Log($"CleanupGlobalDuplicatedHands called, found {globalDuplicatedHands.Count} duplicates to clean up");
+        
+        // Clean up immediately (not deferred) when called from ApplyGlobalBoostIntensity
+        foreach (GameObject duplicate in globalDuplicatedHands.ToArray())
         {
             if (duplicate != null)
             {
-                if (Application.isPlaying)
+                UnityEngine.Debug.Log($"Destroying duplicate: {duplicate.name}");
+                if (!Application.isPlaying)
                 {
-                    Destroy(duplicate);
+                    DestroyImmediate(duplicate);
                 }
                 else
                 {
-                    DestroyImmediate(duplicate);
+                    Destroy(duplicate);
                 }
             }
         }
@@ -613,9 +793,6 @@ public class FrameRecorder : MonoBehaviour
     // Apply dark mode settings
     void ApplyDarkModeSettings()
     {
-        // Get dark mode state from DarkModeController reference
-        bool isDarkMode = darkModeController != null ? darkModeController.IsDarkMode : false;
-        
         // Update background color based on dark mode
         if (isDarkMode)
         {
@@ -669,13 +846,14 @@ public class FrameRecorder : MonoBehaviour
         }
     }
 
-    // Check if a GameObject is likely a hand mesh (static version)
+    // Check if a GameObject is likely a hand/mesh object (static version)
     static bool IsHandMeshStatic(GameObject obj)
     {
         string objectName = obj.name.ToLower();
         
         // Check for hand-related keywords in the name
-        if (objectName.Contains("hand") || objectName.Contains("finger") || objectName.Contains("palm"))
+        if (objectName.Contains("hand") || objectName.Contains("finger") || objectName.Contains("palm") || 
+            objectName.Contains("arm") || objectName.Contains("body") || objectName.Contains("mesh"))
         {
             return true;
         }
@@ -684,6 +862,17 @@ public class FrameRecorder : MonoBehaviour
         if (obj.GetComponent<HandPoseAnimator>() != null || obj.GetComponent<PoseAnimator>() != null)
         {
             return true;
+        }
+        
+        // Check if it has a SkinnedMeshRenderer (likely a character/body part)
+        SkinnedMeshRenderer skinnedMeshRenderer = obj.GetComponent<SkinnedMeshRenderer>();
+        if (skinnedMeshRenderer != null)
+        {
+            // Additional check: make sure it's not a UI element or other non-character mesh
+            if (!objectName.Contains("ui") && !objectName.Contains("canvas") && !objectName.Contains("panel"))
+            {
+                return true;
+            }
         }
         
         return false;
@@ -701,9 +890,6 @@ public class FrameRecorder : MonoBehaviour
         SkinnedMeshRenderer skinnedMeshRenderer = handMeshObject.GetComponent<SkinnedMeshRenderer>();
         if (skinnedMeshRenderer != null)
         {
-            // Get dark mode state from DarkModeController reference
-            bool isDarkMode = darkModeController != null ? darkModeController.IsDarkMode : false;
-            
             if (isDarkMode && moreSettings._handLight != null)
             {
                 skinnedMeshRenderer.material = moreSettings._handLight;
@@ -725,7 +911,9 @@ public class FrameRecorder : MonoBehaviour
     // Delete files in a subfolder with a specific pattern
     void DeleteFiles(string subFolder, string pattern)
     {
-        string subFolderOutputPath = Path.Combine("Recordings", subFolder, outputName);
+        if (string.IsNullOrEmpty(currentOutputName)) return;
+        
+        string subFolderOutputPath = Path.Combine("Recordings", subFolder, currentOutputName);
         if (Directory.Exists(subFolderOutputPath))
         {
             string[] files = Directory.GetFiles(subFolderOutputPath, pattern);

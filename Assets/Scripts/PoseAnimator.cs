@@ -5,14 +5,14 @@ using System;
 public class PoseAnimator : MonoBehaviour
 {
     [SerializeField] private Transform[] handPoses;
-    [Range(0, 0.25f)] public float[] durations; // Array of durations for each transition
-    
+    [Range(0, 0.35f)] public float[] durations; // Array of durations for each transition
+
     private int currentPoseIndex = 0;
     private int targetPoseIndex = 1;
-    
+
     // Public getter for current pose index
     public int CurrentPoseIndex => currentPoseIndex;
-    
+
     private Transform[] currentPoseHandJoints;
     private Transform[] targetPoseHandJoints;
     private Transform[] visiblePoseHandJoints;
@@ -22,50 +22,77 @@ public class PoseAnimator : MonoBehaviour
     private float totalFrames = 0;
     private float totalTime = 0;
 
-    [SerializeField] private FrameRecorder frameRecorder;
     private int frameRate = 0;
     [HideInInspector] public int animationCount = 0;
-    
+    [SerializeField] private GlobalFrameRecorder globalFrameRecorder;
+
     // Events for pose index changes
     public static event Action<int> OnPoseIndexChanged;
-    
+
     private void Start()
     {
         if (handPoses.Length != durations.Length)
         {
             Debug.LogError($"The amount of handPoses and durations must be identical in: {transform.parent.gameObject.name}");
         }
-        
+
+        // Register this GameObject with the global frame recorder
+        if (globalFrameRecorder != null)
+        {           
+            frameRate = globalFrameRecorder.frameRate;
+
+            // Update the end frame for this animation
+            globalFrameRecorder.SetEndFrame((int)totalFrames);
+        }
+        else
+        {
+            frameRate = 60; // Fallback if not assigned
+        }
+
         UpdateCurrentPose(0);
         UpdateTargetPose(1);
-        visiblePoseHandJoints = transform.GetComponentsInChildren<Transform>();       
+        visiblePoseHandJoints = transform.GetComponentsInChildren<Transform>();
     }
 
     private void OnValidate()
-    {   
-        frameRate = frameRecorder.frameRate;        
-        totalFrames = 0;       
-        totalTime = 0;       
+    {
+        // Use default frame rate if globalFrameRecorder is not available
+        if (globalFrameRecorder != null)
+        {
+            frameRate = globalFrameRecorder.frameRate;
+        }
+        else
+        {
+            frameRate = 60; // Default frame rate
+        }
+
+        totalFrames = 0;
+        totalTime = 0;
         foreach (var duration in durations)
         {
             totalFrames += Mathf.RoundToInt(duration * frameRate); // Convert duration to frame count at frameRate
             totalTime += duration;
         }
-        frameRecorder.endFrame = (int)totalFrames;
+
+        // Set end frame if globalFrameRecorder is available
+        if (globalFrameRecorder != null)
+        {
+            globalFrameRecorder.SetEndFrame((int)totalFrames);
+        }
     }
-    
+
     private void UpdateCurrentPose(int newPoseIndex)
     {
         if (handPoses != null && newPoseIndex >= 0 && newPoseIndex < handPoses.Length && handPoses[newPoseIndex] != null)
         {
             currentPoseIndex = newPoseIndex;
             currentPoseHandJoints = handPoses[currentPoseIndex].GetComponentsInChildren<Transform>();
-            
+
             // Trigger pose index change event
             OnPoseIndexChanged?.Invoke(currentPoseIndex);
         }
     }
-    
+
     private void UpdateTargetPose(int newPoseIndex)
     {
         if (handPoses != null && newPoseIndex >= 0 && newPoseIndex < handPoses.Length && handPoses[newPoseIndex] != null)
@@ -106,7 +133,7 @@ public class PoseAnimator : MonoBehaviour
             if (visiblePoseHandJoints != null && currentPoseHandJoints != null && targetPoseHandJoints != null)
             {
                 int minLength = Mathf.Min(visiblePoseHandJoints.Length, currentPoseHandJoints.Length, targetPoseHandJoints.Length);
-                
+
                 for (int i = 1; i < minLength; i++)
                 {
                     if (visiblePoseHandJoints[i] != null && currentPoseHandJoints[i] != null && targetPoseHandJoints[i] != null)
@@ -122,12 +149,21 @@ public class PoseAnimator : MonoBehaviour
         if (accumulatedTime >= totalTime)
         {
             animationCount++;
-            if (frameRecorder.isRecording)
+            if (globalFrameRecorder != null && globalFrameRecorder.isRecording)
             {
                 EditorApplication.ExitPlaymode();
                 UnityEngine.Debug.Log("Recording finished.");
             }
             accumulatedTime = 0; // Reset accumulatedTime after completing all durations
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Unregister this GameObject from the global frame recorder
+        if (globalFrameRecorder != null)
+        {
+            globalFrameRecorder.UnregisterActiveTarget();
         }
     }
 
