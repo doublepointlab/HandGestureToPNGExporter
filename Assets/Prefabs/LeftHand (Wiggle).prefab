@@ -1483,8 +1483,8 @@ MonoBehaviour:
   - 0.03
   - 2
   - 1.5
-  frameRecorder: {fileID: 6225997558116057606}
   animationCount: 0
+  globalFrameRecorder: {fileID: 0}
 --- !u!114 &6225997558116057606
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1494,26 +1494,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 4918678468886330099}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0fab7a93a484dabae16b08907aaf9c, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e63ac18fd89a41f786289617287bf7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetCamera: {fileID: 0}
-  backgroundColor: {r: 0, g: 0, b: 0, a: 0}
-  outputFolder: Shake
-  outputWidth: 1280
-  outputHeight: 720
-  outputScale: 2
-  frameRate: 60
-  gifFrameRate: 30
-  exportAsMP4: 0
-  exportAsPNGSequence: 0
-  exportAsJPGSequence: 0
-  exportAsGIF: 0
-  isRecording: 0
-  endFrame: 247
-  fadeInOut: {fileID: 0}
-  isFadingIn: 1
-  isFadingOut: 1
+  referenceImage: {fileID: 0}
+  sourceSprite: {fileID: 0}
+  targetSprite: {fileID: 0}
+  poseAnimator: {fileID: 1934565554279526855}
+  globalFrameRecorder: {fileID: 0}
+  changeSpriteAfterPoseIndex: 1
 --- !u!1 &4979445447469188478
 GameObject:
   m_ObjectHideFlags: 0
