@@ -243,7 +243,7 @@ public class GlobalFrameRecorder : MonoBehaviour
     }
 
     // Register a GameObject with PoseAnimator as the current active target
-    private void RegisterActiveTarget(GameObject target)
+    public void RegisterActiveTarget(GameObject target)
     {
         if (target == null) return;
         
@@ -258,6 +258,7 @@ public class GlobalFrameRecorder : MonoBehaviour
         CreateOutputFolder();
         
         UnityEngine.Debug.Log($"Registered active target: {currentActiveTarget.name} -> Output name: {currentOutputName} (mode: {(isDarkMode ? "dark" : "light")})");
+        UnityEngine.Debug.Log($"PoseAnimator found: {currentPoseAnimator != null}, Durations count: {(currentPoseAnimator?.durations?.Length ?? 0)}");
     }
 
     // Unregister the current active target
@@ -295,9 +296,16 @@ public class GlobalFrameRecorder : MonoBehaviour
         // Get the current end frame from the PoseAnimator
         int currentEndFrame = GetCurrentEndFrame();
         
+        // Debug logging to understand why CaptureFrame is not being called
+        if (frameCount % 60 == 0) // Log every 60 frames (1 second at 60fps)
+        {
+            UnityEngine.Debug.Log($"DEBUG: frameCount={frameCount}, startFrame={startFrame}, currentEndFrame={currentEndFrame}, isRecording={isRecording}");
+        }
+        
         // Capture frame if within the recording range
         if (isRecording && frameCount >= startFrame && frameCount <= currentEndFrame)
         {
+            UnityEngine.Debug.Log($"Capturing frame {frameCount}");
             CaptureFrame();
         }
         frameCount++;
@@ -418,11 +426,23 @@ public class GlobalFrameRecorder : MonoBehaviour
         {
             // Calculate total frames from the PoseAnimator's durations
             float totalFrames = 0;
-            foreach (var duration in currentPoseAnimator.durations)
+            if (currentPoseAnimator.durations != null && currentPoseAnimator.durations.Length > 0)
             {
-                totalFrames += Mathf.RoundToInt(duration * frameRate);
+                foreach (var duration in currentPoseAnimator.durations)
+                {
+                    totalFrames += Mathf.RoundToInt(duration * frameRate);
+                }
+                UnityEngine.Debug.Log($"GetCurrentEndFrame: Calculated {totalFrames} frames from {currentPoseAnimator.durations.Length} durations");
+                return (int)totalFrames;
             }
-            return (int)totalFrames;
+            else
+            {
+                UnityEngine.Debug.LogWarning("GetCurrentEndFrame: currentPoseAnimator.durations is null or empty");
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.LogWarning("GetCurrentEndFrame: currentPoseAnimator is null");
         }
         return endFrame; // Fallback to stored end frame
     }
@@ -693,7 +713,7 @@ public class GlobalFrameRecorder : MonoBehaviour
                 {
                     DuplicateSkinnedMeshObject(originalObject);
                 }
-                UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+                //UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
             };
         }
         else
@@ -703,7 +723,7 @@ public class GlobalFrameRecorder : MonoBehaviour
             {
                 DuplicateSkinnedMeshObject(originalObject);
             }
-            UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+            //UnityEngine.Debug.Log($"Global boost intensity {globalBoostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
         }
     }
 
@@ -713,7 +733,7 @@ public class GlobalFrameRecorder : MonoBehaviour
         int duplicateCount = (int)globalBoostIntensity - 1; // Subtract 1 because original object already exists
         float spacing = 2.0f; // Spacing between duplicated objects
 
-        UnityEngine.Debug.Log($"DuplicateSkinnedMeshObject called for {originalObject.name} with boost intensity {globalBoostIntensity}");
+        //UnityEngine.Debug.Log($"DuplicateSkinnedMeshObject called for {originalObject.name} with boost intensity {globalBoostIntensity}");
 
         for (int i = 0; i < duplicateCount; i++)
         {
@@ -756,7 +776,7 @@ public class GlobalFrameRecorder : MonoBehaviour
                 // Add to global tracking list
                 globalDuplicatedHands.Add(duplicate);
 
-                UnityEngine.Debug.Log($"Duplicated SkinnedMeshRenderer: {duplicate.name} at position {duplicatePosition}");
+                //UnityEngine.Debug.Log($"Duplicated SkinnedMeshRenderer: {duplicate.name} at position {duplicatePosition}");
             }
             catch (System.Exception e)
             {

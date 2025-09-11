@@ -10,16 +10,20 @@ public class DurationCalculatorHelper : MonoBehaviour
     private void OnValidate()
     {
         calculatedDuration = 0;
-        if (durations != null)
+        if (durations != null && durations.Length > 0)
         {
-            for (int i = startElement; i <= endElement; i++)
+            // Ensure startElement and endElement are within bounds
+            int safeStartElement = Mathf.Clamp(startElement, 0, durations.Length - 1);
+            int safeEndElement = Mathf.Clamp(endElement, 0, durations.Length - 1);
+            
+            for (int i = safeStartElement; i <= safeEndElement; i++)
             {
                 calculatedDuration += durations[i];
             }
         }
         else
         {
-            Debug.LogError("PoseAnimator or durations array is null.");
+            Debug.LogError("PoseAnimator or durations array is null or empty.");
         }
     }
 }

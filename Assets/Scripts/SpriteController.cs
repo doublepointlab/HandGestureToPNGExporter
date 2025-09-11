@@ -40,14 +40,14 @@ public class SpriteController : MonoBehaviour
         // Validate source sprite (idle state)
         if (sourceSprite == null)
         {
-            Debug.LogWarning("SpriteController: No source sprite assigned. Please assign a source sprite for idle state.");
+            //Debug.LogWarning("SpriteController: No source sprite assigned. Please assign a source sprite for idle state.");
             return;
         }
         
         // Validate reference image component
         if (referenceImage == null)
         {
-            Debug.LogWarning("SpriteController: No reference Image component assigned. Please assign a reference Image component.");
+            //Debug.LogWarning("SpriteController: No reference Image component assigned. Please assign a reference Image component.");
             return;
         }
         
@@ -59,7 +59,7 @@ public class SpriteController : MonoBehaviour
         // Set initial state: apply source sprite to reference image (idle)
         referenceImage.sprite = sourceSprite;
         
-        Debug.Log($"SpriteController initialized. Will change sprite when pose index reaches {changeSpriteAfterPoseIndex}");
+        //Debug.Log($"SpriteController initialized. Will change sprite when pose index reaches {changeSpriteAfterPoseIndex}");
     }
     
     /// <summary>
@@ -74,7 +74,7 @@ public class SpriteController : MonoBehaviour
         // Debug logging to help diagnose issues
         if (currentPoseIndex != lastPoseIndex)
         {
-            Debug.Log($"Pose index changed: {lastPoseIndex} -> {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex}, triggered: {hasTriggeredForPoseIndex})");
+            //Debug.Log($"Pose index changed: {lastPoseIndex} -> {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex}, triggered: {hasTriggeredForPoseIndex})");
         }
         
         // Check if we've passed the threshold and haven't triggered yet
@@ -82,7 +82,7 @@ public class SpriteController : MonoBehaviour
         {
             hasTriggeredForPoseIndex = true;
             TriggerSpriteChange();
-            Debug.Log($"Sprite triggered at pose index {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex})");
+            //Debug.Log($"Sprite triggered at pose index {currentPoseIndex} (threshold: {changeSpriteAfterPoseIndex})");
         }
         
         // Check for pose cycle completion (reset to source sprite)
@@ -103,7 +103,7 @@ public class SpriteController : MonoBehaviour
         {
             ResetToSourceSprite();
             hasTriggeredForPoseIndex = false; // Reset trigger state for next cycle
-            Debug.Log("Pose cycle completed - sprite reset to source");
+            //Debug.Log("Pose cycle completed - sprite reset to source");
         }
     }
     
@@ -136,7 +136,7 @@ public class SpriteController : MonoBehaviour
         referenceImage.sprite = targetSprite;
         
         OnSpriteChanged?.Invoke();
-        Debug.Log($"Sprite changed to target sprite: {targetSprite.name}");
+        //Debug.Log($"Sprite changed to target sprite: {targetSprite.name}");
     }
     
     /// <summary>
@@ -150,7 +150,7 @@ public class SpriteController : MonoBehaviour
             referenceImage.sprite = sourceSprite;
             
             OnSpriteChanged?.Invoke();
-            Debug.Log("Reset to source sprite (idle state)");
+            //Debug.Log("Reset to source sprite (idle state)");
         }
     }
     
@@ -162,7 +162,7 @@ public class SpriteController : MonoBehaviour
     {
         changeSpriteAfterPoseIndex = poseIndex;
         hasTriggeredForPoseIndex = false; // Reset trigger state
-        Debug.Log($"Change sprite after pose index set to {poseIndex}");
+        //Debug.Log($"Change sprite after pose index set to {poseIndex}");
     }
     
     /// <summary>

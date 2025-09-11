@@ -2469,7 +2469,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 8633856706563194952, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7606,7 +7606,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -8640,7 +8640,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 8633856706563194952, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -12065,7 +12065,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
       propertyPath: animationCount
@@ -13931,7 +13931,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17002,7 +17002,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -22829,7 +22829,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23770,7 +23770,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -26409,7 +26409,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -28608,9 +28608,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 778330738}
-  - component: {fileID: 778330737}
-  - component: {fileID: 778330736}
-  - component: {fileID: 778330735}
   m_Layer: 0
   m_Name: LeftHand (Flick Tap Up) (2)
   m_TagString: Hand
@@ -28618,111 +28615,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &778330735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 778330734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0fab7a93a484dabae16b08907aaf9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetCamera: {fileID: 632429410}
-  fadeInOut: {fileID: 775998834}
-  moreSettings:
-    _backgroundColor:
-      r: 0
-      g: 0
-      b: 0
-      a: 0
-    _lightBackground:
-      r: 1
-      g: 1
-      b: 1
-      a: 1
-    _outputWidth: 720
-    _outputHeight: 720
-    _outputScale: 2
-    _frameRate: 60
-    _gifFrameRate: 50
-    _boostIntensity: 1
-    _handLight: {fileID: 0}
-    _handDark: {fileID: 0}
-  previousBoostIntensity: 1
-  exportAsMP4: 1
-  exportAsPNGSequence: 0
-  exportAsJPGSequence: 0
-  exportAsGIF: 1
-  exportAsWebM: 0
-  isFadingIn: 1
-  isFadingOut: 1
-  darkModeController: {fileID: 0}
-  isRecording: 0
-  startFrame: 0
-  endFrame: 72
-  outputName: FlickTapDownBluev2
-  frameCount: 0
-  actualFrameCount: 0
-  fadeDuration: 1
-  frameInterval: 1
-  backgroundColor:
-    r: 1
-    g: 1
-    b: 1
-    a: 1
-  outputWidth: 0
-  outputHeight: 0
-  outputScale: 0
-  frameRate: 60
-  gifFrameRate: 0
-  boostIntensity: 0
---- !u!114 &778330736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 778330734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7204232b9d06f470598589bf9baa58b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handPoses:
-  - {fileID: 778330738}
-  - {fileID: 778330738}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 1470636442}
-  - {fileID: 1470636442}
-  - {fileID: 1470636442}
-  durations:
-  - 0.15
-  - 0.15
-  - 0.089
-  - 0.153
-  - 0.19
-  - 0.231
-  - 0.246
-  animationCount: 1080
-  globalFrameRecorder: {fileID: 0}
---- !u!114 &778330737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 778330734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0e6b8c0f557c435dad7a56ec1c691cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  poseAnimator: {fileID: 778330736}
-  videoClip: {fileID: 0}
 --- !u!4 &778330738
 Transform:
   m_ObjectHideFlags: 0
@@ -31345,7 +31237,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -36092,7 +35984,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 6148853102935821702, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: watch
@@ -39857,7 +39749,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -39959,7 +39851,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -41141,7 +41033,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -41306,7 +41198,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -43050,7 +42942,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -44702,7 +44594,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -44952,7 +44844,7 @@ MonoBehaviour:
     _outputScale: 2
     _frameRate: 60
     _gifFrameRate: 30
-    _boostIntensity: 1
+    _boostIntensity: 4
     _handLight: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
     _handDark: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   exportAsMP4: 1
@@ -44962,7 +44854,7 @@ MonoBehaviour:
   exportAsWebM: 0
   isFadingIn: 0
   isFadingOut: 0
-  isDarkMode: 1
+  isDarkMode: 0
   enableBounceAnimation: 1
   bounceDuration: 0.3
   bounceIntensity: 1.05
@@ -45161,7 +45053,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -49271,7 +49163,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -50721,7 +50613,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -54771,7 +54663,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -57947,7 +57839,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 2606041599447104604, guid: eabbf507aaf3f432aa04a37ca5047927,
         type: 3}
       propertyPath: animationCount
@@ -59704,7 +59596,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -62282,7 +62174,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -64485,7 +64377,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -65722,9 +65614,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1835420542}
-  - component: {fileID: 1835420541}
-  - component: {fileID: 1835420540}
-  - component: {fileID: 1835420539}
   m_Layer: 0
   m_Name: LeftHand (Flick Tap Up) (1)
   m_TagString: Hand
@@ -65732,115 +65621,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1835420539
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1835420538}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0fab7a93a484dabae16b08907aaf9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetCamera: {fileID: 632429410}
-  fadeInOut: {fileID: 775998834}
-  moreSettings:
-    _backgroundColor:
-      r: 0
-      g: 0
-      b: 0
-      a: 0
-    _lightBackground:
-      r: 1
-      g: 1
-      b: 1
-      a: 1
-    _outputWidth: 720
-    _outputHeight: 720
-    _outputScale: 2
-    _frameRate: 60
-    _gifFrameRate: 50
-    _boostIntensity: 1
-    _handLight: {fileID: 0}
-    _handDark: {fileID: 0}
-  previousBoostIntensity: 1
-  exportAsMP4: 1
-  exportAsPNGSequence: 0
-  exportAsJPGSequence: 0
-  exportAsGIF: 1
-  exportAsWebM: 0
-  isFadingIn: 0
-  isFadingOut: 0
-  darkModeController: {fileID: 0}
-  isRecording: 1
-  startFrame: 0
-  endFrame: 99
-  outputName: FlickTapDownBluev2
-  frameCount: 0
-  actualFrameCount: 0
-  fadeDuration: 1
-  frameInterval: 1
-  backgroundColor:
-    r: 1
-    g: 1
-    b: 1
-    a: 1
-  outputWidth: 0
-  outputHeight: 0
-  outputScale: 0
-  frameRate: 60
-  gifFrameRate: 0
-  boostIntensity: 0
---- !u!114 &1835420540
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1835420538}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7204232b9d06f470598589bf9baa58b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handPoses:
-  - {fileID: 1835420542}
-  - {fileID: 1835420542}
-  - {fileID: 778330738}
-  - {fileID: 778330738}
-  - {fileID: 1470636442}
-  - {fileID: 1470636442}
-  - {fileID: 1470636442}
-  - {fileID: 1835420542}
-  - {fileID: 1835420542}
-  durations:
-  - 0.15
-  - 0.15
-  - 0.089
-  - 0.153
-  - 0.19
-  - 0.231
-  - 0.246
-  - 0.236
-  - 0.213
-  animationCount: 1080
-  globalFrameRecorder: {fileID: 0}
---- !u!114 &1835420541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1835420538}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0e6b8c0f557c435dad7a56ec1c691cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  poseAnimator: {fileID: 1835420540}
-  videoClip: {fileID: 0}
 --- !u!4 &1835420542
 Transform:
   m_ObjectHideFlags: 0
@@ -65909,7 +65689,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -67102,7 +66882,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -68472,7 +68252,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -68794,7 +68574,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -75475,7 +75255,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -76305,7 +76085,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -77749,7 +77529,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 6846516534436779799, guid: 3c4dc1a20985f42a7b4d9a1eceae3483,
         type: 3}
       propertyPath: watch
@@ -78739,7 +78519,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     m_RemovedComponents:
     - {fileID: 3380690876508943351, guid: 76644adf324b84d0b986d132861d6bf0, type: 3}
     - {fileID: 7366556443387584370, guid: 76644adf324b84d0b986d132861d6bf0, type: 3}
@@ -78961,20 +78741,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 775271656159471774}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &693152934782934993
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8108396189946312156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0e6b8c0f557c435dad7a56ec1c691cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  poseAnimator: {fileID: 5979103754263271345}
-  videoClip: {fileID: 0}
 --- !u!1 &702657649741788876
 GameObject:
   m_ObjectHideFlags: 0
@@ -79075,7 +78841,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -79734,67 +79500,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1514475039177475907
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8108396189946312156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0fab7a93a484dabae16b08907aaf9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetCamera: {fileID: 632429410}
-  fadeInOut: {fileID: 775998834}
-  moreSettings:
-    _backgroundColor:
-      r: 0
-      g: 0
-      b: 0
-      a: 0
-    _lightBackground:
-      r: 1
-      g: 1
-      b: 1
-      a: 1
-    _outputWidth: 720
-    _outputHeight: 720
-    _outputScale: 2
-    _frameRate: 60
-    _gifFrameRate: 50
-    _boostIntensity: 1
-    _handLight: {fileID: 0}
-    _handDark: {fileID: 0}
-  previousBoostIntensity: 1
-  exportAsMP4: 1
-  exportAsPNGSequence: 0
-  exportAsJPGSequence: 0
-  exportAsGIF: 1
-  exportAsWebM: 0
-  isFadingIn: 0
-  isFadingOut: 0
-  darkModeController: {fileID: 0}
-  isRecording: 1
-  startFrame: 0
-  endFrame: 99
-  outputName: FlickTapDownBluev2
-  frameCount: 0
-  actualFrameCount: 0
-  fadeDuration: 1
-  frameInterval: 1
-  backgroundColor:
-    r: 1
-    g: 1
-    b: 1
-    a: 1
-  outputWidth: 0
-  outputHeight: 0
-  outputScale: 0
-  frameRate: 60
-  gifFrameRate: 0
-  boostIntensity: 0
 --- !u!4 &1541319882624920448
 Transform:
   m_ObjectHideFlags: 0
@@ -80240,36 +79945,6 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &2062948876088182673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4530011420694636028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7204232b9d06f470598589bf9baa58b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handPoses:
-  - {fileID: 8378595795587784493}
-  - {fileID: 8378595795587784493}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 1352572620}
-  - {fileID: 1352572620}
-  - {fileID: 1352572620}
-  durations:
-  - 0.15
-  - 0.15
-  - 0.089
-  - 0.153
-  - 0.19
-  - 0.231
-  - 0.246
-  animationCount: 1080
-  globalFrameRecorder: {fileID: 0}
 --- !u!1 &2072885752414401720
 GameObject:
   m_ObjectHideFlags: 0
@@ -81986,7 +81661,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 6148853102935821702, guid: dd44725887751420db72919372a7fe49,
         type: 3}
       propertyPath: watch
@@ -82590,7 +82265,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 7277115479604055618, guid: 2a5b52dc740f745b29f8d4d7e974b5ce,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -83153,9 +82828,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8378595795587784493}
-  - component: {fileID: 5171690203128500209}
-  - component: {fileID: 2062948876088182673}
-  - component: {fileID: 6584092484757395299}
   m_Layer: 0
   m_Name: LeftHand (Flick Tap Down) (2)
   m_TagString: Hand
@@ -83455,7 +83127,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 8274141051311375569, guid: e4f95f29934fa47f4a5c0f32d0b4eeb0,
         type: 3}
       propertyPath: frameRecorder
@@ -83865,7 +83537,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84107,20 +83779,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &5171690203128500209
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4530011420694636028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0e6b8c0f557c435dad7a56ec1c691cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  poseAnimator: {fileID: 2062948876088182673}
-  videoClip: {fileID: 0}
 --- !u!4 &5174558586348338324
 Transform:
   m_ObjectHideFlags: 0
@@ -84219,7 +83877,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+  - {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85031,40 +84689,6 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &5979103754263271345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8108396189946312156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7204232b9d06f470598589bf9baa58b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handPoses:
-  - {fileID: 4187743202062716685}
-  - {fileID: 4187743202062716685}
-  - {fileID: 8378595795587784493}
-  - {fileID: 8378595795587784493}
-  - {fileID: 1352572620}
-  - {fileID: 1352572620}
-  - {fileID: 1352572620}
-  - {fileID: 4187743202062716685}
-  - {fileID: 4187743202062716685}
-  durations:
-  - 0.15
-  - 0.15
-  - 0.089
-  - 0.153
-  - 0.19
-  - 0.231
-  - 0.246
-  - 0.236
-  - 0.213
-  animationCount: 1080
-  globalFrameRecorder: {fileID: 0}
 --- !u!1 &5984006585238983064
 GameObject:
   m_ObjectHideFlags: 0
@@ -85675,67 +85299,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1068674709770139536}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6584092484757395299
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4530011420694636028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec0fab7a93a484dabae16b08907aaf9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetCamera: {fileID: 632429410}
-  fadeInOut: {fileID: 775998834}
-  moreSettings:
-    _backgroundColor:
-      r: 0
-      g: 0
-      b: 0
-      a: 0
-    _lightBackground:
-      r: 1
-      g: 1
-      b: 1
-      a: 1
-    _outputWidth: 720
-    _outputHeight: 720
-    _outputScale: 2
-    _frameRate: 60
-    _gifFrameRate: 50
-    _boostIntensity: 1
-    _handLight: {fileID: 0}
-    _handDark: {fileID: 0}
-  previousBoostIntensity: 1
-  exportAsMP4: 1
-  exportAsPNGSequence: 0
-  exportAsJPGSequence: 0
-  exportAsGIF: 1
-  exportAsWebM: 0
-  isFadingIn: 1
-  isFadingOut: 1
-  darkModeController: {fileID: 0}
-  isRecording: 0
-  startFrame: 0
-  endFrame: 72
-  outputName: FlickTapDownBluev2
-  frameCount: 0
-  actualFrameCount: 0
-  fadeDuration: 1
-  frameInterval: 1
-  backgroundColor:
-    r: 1
-    g: 1
-    b: 1
-    a: 1
-  outputWidth: 0
-  outputHeight: 0
-  outputScale: 0
-  frameRate: 60
-  gifFrameRate: 0
-  boostIntensity: 0
 --- !u!1 &6597043321046453715
 GameObject:
   m_ObjectHideFlags: 0
@@ -87196,7 +86759,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 8633856706563194952, guid: 6e30df34ca4ea4c76ac4269e7399a919,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -87618,7 +87181,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 1b53f98e166c344af956868e08893789, type: 2}
+      objectReference: {fileID: 2100000, guid: 78d0919df412a420e825f034bcb7a73f, type: 2}
     - target: {fileID: 6225997558116057606, guid: 09a25528c3de44670b95850b93c57988,
         type: 3}
       propertyPath: darkMode
@@ -88368,9 +87931,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4187743202062716685}
-  - component: {fileID: 693152934782934993}
-  - component: {fileID: 5979103754263271345}
-  - component: {fileID: 1514475039177475907}
   m_Layer: 0
   m_Name: LeftHand (Flick Tap Down) (1)
   m_TagString: Hand

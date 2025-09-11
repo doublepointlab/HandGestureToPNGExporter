@@ -41,6 +41,11 @@ public class PoseAnimator : MonoBehaviour
         {           
             frameRate = globalFrameRecorder.frameRate;
 
+            Debug.Log($"PoseAnimator Start: totalFrames={totalFrames}, durations.Length={durations.Length}, frameRate={frameRate}");
+
+            // Register this GameObject as the active target
+            globalFrameRecorder.RegisterActiveTarget(gameObject);
+
             // Update the end frame for this animation
             globalFrameRecorder.SetEndFrame((int)totalFrames);
         }
