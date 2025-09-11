@@ -12,7 +12,6 @@ public class SpriteController : MonoBehaviour
     [SerializeField] private int changeSpriteAfterPoseIndex = 1;
     
     [Header("Bounce Animation (Uses GlobalFrameRecorder settings)")]
-  
     
     private bool hasTriggeredForPoseIndex = false;
     private Sprite originalReferenceSprite;
@@ -118,11 +117,8 @@ public class SpriteController : MonoBehaviour
             ChangeSprite();
         }
         
-        // Also trigger bounce through GlobalFrameRecorder if available
-        if (globalFrameRecorder != null)
-        {
-            globalFrameRecorder.TriggerBounceAnimation();
-        }
+        // Trigger bounce animation directly on the reference image
+        TriggerBounceAnimation();
     }
     
     /// <summary>
@@ -172,6 +168,15 @@ public class SpriteController : MonoBehaviour
     public void ManualSpriteChange()
     {
         TriggerSpriteChange();
+    }
+    
+    /// <summary>
+    /// Manually trigger bounce animation (for testing)
+    /// </summary>
+    [ContextMenu("Trigger Bounce")]
+    public void ManualBounceAnimation()
+    {
+        TriggerBounceAnimation();
     }    
     /// <summary>
     /// Manually reset sprite to source (for testing)
@@ -180,5 +185,32 @@ public class SpriteController : MonoBehaviour
     public void ManualResetToSource()
     {
         ResetToSourceSprite();
-    }   
+    }
+    
+    /// <summary>
+    /// Trigger bounce animation on the reference image using GlobalFrameRecorder settings
+    /// </summary>
+    private void TriggerBounceAnimation()
+    {
+        if (referenceImage == null || globalFrameRecorder == null) return;
+        
+        // Get bounce settings from GlobalFrameRecorder
+        var (enabled, duration, intensity) = globalFrameRecorder.GetBounceSettings();
+        
+        if (!enabled) return;
+        
+        // Store original scale
+        Vector3 originalScale = referenceImage.transform.localScale;
+        
+        // Create bounce animation using LeanTween
+        LeanTween.scale(referenceImage.gameObject, originalScale * intensity, duration * 0.5f)
+            .setEaseOutQuad()
+            .setOnComplete(() => {
+                LeanTween.scale(referenceImage.gameObject, originalScale, duration * 0.5f)
+                    .setEaseInQuad();
+            });
+        
+        UnityEngine.Debug.Log($"Bounce animation triggered on {referenceImage.name} (intensity: {intensity}, duration: {duration})");
+    }
+    
 }

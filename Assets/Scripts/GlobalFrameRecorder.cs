@@ -133,48 +133,11 @@ public class GlobalFrameRecorder : MonoBehaviour
         }
     }
 
-    // Trigger bounce animation on the current active target
-    public void TriggerBounceAnimation()
-    {
-        if (currentActiveTarget == null || !enableBounceAnimation) return;
-        
-        // Find Image component in the target or its children
-        UnityEngine.UI.Image targetImage = currentActiveTarget.GetComponentInChildren<UnityEngine.UI.Image>();
-        if (targetImage == null)
-        {
-            UnityEngine.Debug.LogWarning("No Image component found for bounce animation");
-            return;
-        }
-        
-        // Store original scale
-        Vector3 originalScale = targetImage.transform.localScale;
-        
-        // Create bounce animation using LeanTween
-        LeanTween.scale(targetImage.gameObject, originalScale * bounceIntensity, bounceDuration * 0.5f)
-            .setEaseOutQuad()
-            .setOnComplete(() => {
-                LeanTween.scale(targetImage.gameObject, originalScale, bounceDuration * 0.5f)
-                    .setEaseInQuad();
-            });
-        
-        UnityEngine.Debug.Log($"Bounce animation triggered on {currentActiveTarget.name} (intensity: {bounceIntensity}, duration: {bounceDuration})");
-    }
-
-    // Set bounce animation settings
-    private void SetBounceSettings(bool enabled, float duration, float intensity)
-    {
-        enableBounceAnimation = enabled;
-        bounceDuration = duration;
-        bounceIntensity = intensity;
-        UnityEngine.Debug.Log($"Bounce settings updated - Enabled: {enabled}, Duration: {duration}, Intensity: {intensity}");
-    }
-
-    // Get bounce animation settings
+    // Get bounce animation settings from GlobalFrameRecorder
     public (bool enabled, float duration, float intensity) GetBounceSettings()
     {
         return (enableBounceAnimation, bounceDuration, bounceIntensity);
     }
- 
 
     void Start()
     {
