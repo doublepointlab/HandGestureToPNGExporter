@@ -26,26 +26,6 @@ public class SpriteController : MonoBehaviour
         InitializeSprite();
     }
     
-    // Called when values are changed in the Inspector or when GameObject becomes active
-    private void OnValidate()
-    {
-        // Only run in edit mode to avoid issues in play mode
-        if (!Application.isPlaying)
-        {
-            // Auto-assign reference image if not set
-            if (referenceImage == null)
-            {
-                AutoAssignReferenceImage();
-            }
-            
-            // Update reference image to match source sprite
-            if (referenceImage != null && sourceSprite != null)
-            {
-                referenceImage.sprite = sourceSprite;
-            }
-        }
-    }
-    
     private void Update()
     {
         CheckPoseIndex();
@@ -61,12 +41,6 @@ public class SpriteController : MonoBehaviour
         {
             //Debug.LogWarning("SpriteController: No source sprite assigned. Please assign a source sprite for idle state.");
             return;
-        }
-        
-        // Auto-assign reference image if not set
-        if (referenceImage == null)
-        {
-            AutoAssignReferenceImage();
         }
         
         // Validate reference image component
@@ -121,14 +95,30 @@ public class SpriteController : MonoBehaviour
     /// Check if pose animator has completed a cycle and reset sprite to source
     /// </summary>
     /// <param name="currentPoseIndex">Current pose index</param>
+    private int framesSinceCycleComplete = 0;
+    private bool waitingToResetSprite = false;
+
     private void CheckForPoseCycleCompletion(int currentPoseIndex)
     {
         // If we've triggered the sprite change and pose index goes back to 0 (cycle completion)
         if (hasTriggeredForPoseIndex && currentPoseIndex == 0 && lastPoseIndex > 0)
         {
-            ResetToSourceSprite();
-            hasTriggeredForPoseIndex = false; // Reset trigger state for next cycle
-            //Debug.Log("Pose cycle completed - sprite reset to source");
+            waitingToResetSprite = true;
+            framesSinceCycleComplete = 0;
+            //Debug.Log("Pose cycle completed - waiting to reset sprite after 5 frames");
+        }
+
+        if (waitingToResetSprite)
+        {
+            framesSinceCycleComplete++;
+            if (framesSinceCycleComplete >= 5)
+            {
+                ResetToSourceSprite();
+                hasTriggeredForPoseIndex = false; // Reset trigger state for next cycle
+                waitingToResetSprite = false;
+                framesSinceCycleComplete = 0;
+                //Debug.Log("Sprite reset to source after 5 frames");
+            }
         }
     }
     
@@ -214,36 +204,6 @@ public class SpriteController : MonoBehaviour
     }
     
     /// <summary>
-    /// Auto-assign reference image from child objects
-    /// </summary>
-    [ContextMenu("Auto-Assign Reference Image")]
-    public void AutoAssignReferenceImage()
-    {
-        // Look for Image component in children (including inactive ones)
-        UnityEngine.UI.Image foundImage = GetComponentInChildren<UnityEngine.UI.Image>(true);
-        
-        if (foundImage != null)
-        {
-            referenceImage = foundImage;
-            UnityEngine.Debug.Log($"SpriteController: Auto-assigned reference image to {foundImage.name}");
-        }
-        else
-        {
-            // Look for Image component in parent
-            foundImage = GetComponentInParent<UnityEngine.UI.Image>();
-            if (foundImage != null)
-            {
-                referenceImage = foundImage;
-                UnityEngine.Debug.Log($"SpriteController: Auto-assigned reference image to parent {foundImage.name}");
-            }
-            else
-            {
-                UnityEngine.Debug.LogWarning("SpriteController: No Image component found for auto-assignment. Please assign manually.");
-            }
-        }
-    }
-    
-    /// <summary>
     /// Trigger bounce animation on the reference image using GlobalFrameRecorder settings
     /// </summary>
     private void TriggerBounceAnimation()
@@ -268,5 +228,6 @@ public class SpriteController : MonoBehaviour
         
         UnityEngine.Debug.Log($"Bounce animation triggered on {referenceImage.name} (intensity: {intensity}, duration: {duration})");
     }
+    
     
 }

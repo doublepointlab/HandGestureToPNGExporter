@@ -3,11 +3,37 @@ using UnityEditor;
 
 public class IconImageController : MonoBehaviour
 {
+    #if UNITY_EDITOR
+    private void Awake()
+    {
+        // Subscribe to GameObject enable events
+        SpriteController.OnGameObjectEnabled += OnSpriteControllerGameObjectEnabled;
+    }
+    
+    private void OnDestroy()
+    {
+        // Unsubscribe from events to prevent memory leaks
+        SpriteController.OnGameObjectEnabled -= OnSpriteControllerGameObjectEnabled;
+    }
+    
     /// <summary>
-    /// Force update all SpriteController reference images in the scene
+    /// Handle when a SpriteController GameObject is enabled
     /// </summary>
-    [MenuItem("Tools/Force Update All SpriteController References")]
-    public static void ForceUpdateAllSpriteControllerReferences()
+    /// <param name="enabledGameObject">The GameObject that was enabled</param>
+    private void OnSpriteControllerGameObjectEnabled(GameObject enabledGameObject)
+    {
+        if (enabledGameObject == null) return;
+        
+        SpriteController spriteController = enabledGameObject.GetComponent<SpriteController>();
+        if (spriteController != null)
+        {
+            // Force update the SpriteController's reference image
+            spriteController.AutoAssignReferenceImage();
+            Debug.Log($"IconImageController: Updated reference image for enabled GameObject: {enabledGameObject.name}");
+        }
+    }
+    
+    void OnValidate()
     {
         // Find all SpriteController objects in the scene (including inactive ones)
         SpriteController[] allSpriteControllers = Resources.FindObjectsOfTypeAll<SpriteController>();
@@ -26,46 +52,5 @@ public class IconImageController : MonoBehaviour
         
         Debug.Log($"IconImageController: Force updated {updatedCount} SpriteController objects.");
     }
-    
-    /// <summary>
-    /// Force update selected GameObject's SpriteController reference image
-    /// </summary>
-    [MenuItem("Tools/Force Update Selected SpriteController Reference")]
-    public static void ForceUpdateSelectedSpriteControllerReference()
-    {
-        if (Selection.activeGameObject == null)
-        {
-            Debug.LogWarning("IconImageController: No GameObject selected.");
-            return;
-        }
-        
-        SpriteController spriteController = Selection.activeGameObject.GetComponent<SpriteController>();
-        if (spriteController == null)
-        {
-            Debug.LogWarning($"IconImageController: Selected GameObject {Selection.activeGameObject.name} does not have a SpriteController component.");
-            return;
-        }
-        
-        // Trigger OnValidate to update reference image
-        spriteController.SendMessage("OnValidate", null, SendMessageOptions.DontRequireReceiver);
-        Debug.Log($"IconImageController: Force updated reference image for {Selection.activeGameObject.name}.");
-    }
-    
-    /// <summary>
-    /// Auto-assign and update reference image for this specific SpriteController
-    /// </summary>
-    [ContextMenu("Update Reference Image")]
-    public void UpdateReferenceImage()
-    {
-        SpriteController spriteController = GetComponent<SpriteController>();
-        if (spriteController != null)
-        {
-            spriteController.SendMessage("OnValidate", null, SendMessageOptions.DontRequireReceiver);
-            Debug.Log($"IconImageController: Updated reference image for {gameObject.name}.");
-        }
-        else
-        {
-            Debug.LogWarning($"IconImageController: {gameObject.name} does not have a SpriteController component.");
-        }
-    }
+    #endif
 }
