@@ -130,7 +130,7 @@ Material:
     - _ThumbGlowValue: 0
     - _UVSec: 0
     - _UseTexture: 0
-    - _WristFade: 0.334
+    - _WristFade: 0.406
     - _WristRange: 0.06
     - _WristSmoother: 0.85
     - _ZWrite: 1
