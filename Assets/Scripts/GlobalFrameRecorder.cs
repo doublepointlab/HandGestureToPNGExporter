@@ -9,6 +9,7 @@ public class GlobalFrameRecorder : MonoBehaviour
 {
     [SerializeField] private Camera targetCamera; // The camera to capture frames from
     [SerializeField] private FadeInOut fadeInOut; // Reference to FadeInOut script
+    [SerializeField] private BoostIntensityManager boostIntensityManager; // Reference to BoostIntensityManager
     [SerializeField] private MoreSettings moreSettings = new MoreSettings();
 
     [SerializeField] private bool exportAsMP4 = false; // Export as MP4
@@ -19,6 +20,7 @@ public class GlobalFrameRecorder : MonoBehaviour
     [SerializeField] private bool isFadingIn = false; // Flag to check if fading in
     [SerializeField] private bool isFadingOut = false; // Flag to check if fading out
     [SerializeField] private bool isDarkMode = false; // Dark mode toggle
+    private bool previousDarkMode = false; // Track previous dark mode state for change detection
     
     [Header("Icon Settings")]
     [SerializeField] private bool showIcon = true; // Show icon toggle
@@ -90,6 +92,9 @@ public class GlobalFrameRecorder : MonoBehaviour
         frameRate = moreSettings._frameRate;
         gifFrameRate = moreSettings._gifFrameRate;
         
+        // Initialize previous dark mode state
+        previousDarkMode = isDarkMode;
+        
         // Apply dark mode settings
         ApplyDarkModeSettings();
     }
@@ -99,6 +104,13 @@ public class GlobalFrameRecorder : MonoBehaviour
     {
         // BOOST INTENSITY LOGIC MOVED TO SEPARATE BoostIntensityManager SCRIPT
         // This prevents boost intensity from running in play mode and causing issues
+        
+        // Check if dark mode changed and notify BoostIntensityManager
+        if (isDarkMode != previousDarkMode)
+        {
+            previousDarkMode = isDarkMode;
+            NotifyBoostIntensityManager();
+        }
         
         // Apply dark mode settings
         ApplyDarkModeSettings();
@@ -111,9 +123,17 @@ public class GlobalFrameRecorder : MonoBehaviour
     private void ToggleDarkMode()
     {
         isDarkMode = !isDarkMode;
+        previousDarkMode = isDarkMode;
         UpdateOutputName();
         ApplyDarkModeSettings();
+        NotifyBoostIntensityManager();
         UnityEngine.Debug.Log($"Dark mode toggled to: {isDarkMode}");
+    }
+    
+    // Public method to toggle dark mode (for external access)
+    public void ToggleDarkModePublic()
+    {
+        ToggleDarkMode();
     }
 
     // Method to toggle icon visibility at runtime
@@ -139,9 +159,17 @@ public class GlobalFrameRecorder : MonoBehaviour
     private void SetDarkMode(bool darkMode)
     {
         isDarkMode = darkMode;
+        previousDarkMode = isDarkMode;
         UpdateOutputName();
         ApplyDarkModeSettings();
+        NotifyBoostIntensityManager();
         UnityEngine.Debug.Log($"Dark mode set to: {isDarkMode}");
+    }
+    
+    // Public method to set dark mode (for external access)
+    public void SetDarkModePublic(bool darkMode)
+    {
+        SetDarkMode(darkMode);
     }
 
     // Method to toggle recording (for external access)
@@ -149,6 +177,20 @@ public class GlobalFrameRecorder : MonoBehaviour
     {
         isRecording = !isRecording;
         UnityEngine.Debug.Log($"Recording {(isRecording ? "STARTED" : "STOPPED")} - Toggle called");
+    }
+    
+    // Method to notify BoostIntensityManager when dark mode changes
+    private void NotifyBoostIntensityManager()
+    {
+        if (boostIntensityManager != null)
+        {
+            boostIntensityManager.OnDarkModeChanged();
+            UnityEngine.Debug.Log($"Notified BoostIntensityManager of dark mode change to: {isDarkMode}");
+        }
+        else
+        {
+            UnityEngine.Debug.LogWarning("BoostIntensityManager reference is not set. Cannot notify of dark mode change.");
+        }
     }
 
     // Update output name when dark mode changes

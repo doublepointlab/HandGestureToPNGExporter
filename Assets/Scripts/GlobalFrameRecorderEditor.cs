@@ -6,6 +6,7 @@ public class GlobalFrameRecorderEditor : Editor
 {
     private SerializedProperty targetCamera;
     private SerializedProperty fadeInOut;
+    private SerializedProperty boostIntensityManager;
     private SerializedProperty exportAsMP4;
     private SerializedProperty exportAsPNGSequence;
     private SerializedProperty exportAsJPGSequence;
@@ -14,6 +15,8 @@ public class GlobalFrameRecorderEditor : Editor
     private SerializedProperty isFadingIn;
     private SerializedProperty isFadingOut;
     private SerializedProperty isDarkMode;
+    private SerializedProperty showIcon;
+    private SerializedProperty iconGameObject;
     private SerializedProperty isRecording;
     private SerializedProperty enableBounceAnimation;
     private SerializedProperty bounceDuration;
@@ -24,6 +27,7 @@ public class GlobalFrameRecorderEditor : Editor
     {
         targetCamera = serializedObject.FindProperty("targetCamera");
         fadeInOut = serializedObject.FindProperty("fadeInOut");
+        boostIntensityManager = serializedObject.FindProperty("boostIntensityManager");
         exportAsMP4 = serializedObject.FindProperty("exportAsMP4");
         exportAsPNGSequence = serializedObject.FindProperty("exportAsPNGSequence");
         exportAsJPGSequence = serializedObject.FindProperty("exportAsJPGSequence");
@@ -32,6 +36,8 @@ public class GlobalFrameRecorderEditor : Editor
         isFadingIn = serializedObject.FindProperty("isFadingIn");
         isFadingOut = serializedObject.FindProperty("isFadingOut");
         isDarkMode = serializedObject.FindProperty("isDarkMode");
+        showIcon = serializedObject.FindProperty("showIcon");
+        iconGameObject = serializedObject.FindProperty("iconGameObject");
         isRecording = serializedObject.FindProperty("isRecording");
         enableBounceAnimation = serializedObject.FindProperty("enableBounceAnimation");
         bounceDuration = serializedObject.FindProperty("bounceDuration");
@@ -47,6 +53,7 @@ public class GlobalFrameRecorderEditor : Editor
         EditorGUILayout.LabelField("Camera Settings", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(targetCamera, new GUIContent("Target Camera"));
         EditorGUILayout.PropertyField(fadeInOut, new GUIContent("Fade In/Out"));
+        EditorGUILayout.PropertyField(boostIntensityManager, new GUIContent("Boost Intensity Manager"));
         EditorGUILayout.Space();
 
         // Recording settings
@@ -72,6 +79,12 @@ public class GlobalFrameRecorderEditor : Editor
         // Dark mode settings
         EditorGUILayout.LabelField("Dark Mode Settings", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(isDarkMode, new GUIContent("Is Dark Mode"));
+        EditorGUILayout.Space();
+
+        // Icon settings
+        EditorGUILayout.LabelField("Icon Settings", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(showIcon, new GUIContent("Show Icon"));
+        EditorGUILayout.PropertyField(iconGameObject, new GUIContent("Icon GameObject"));
         EditorGUILayout.Space();
 
         // Bounce animation settings

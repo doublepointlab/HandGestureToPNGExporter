@@ -17,9 +17,7 @@ public class BoostIntensityManager : MonoBehaviour
     private int previousIntensityDark = 1;
     private bool isProcessingBoostIntensity = false;
     
-    // Static lists to track all duplicated objects across all instances
-    private static List<GameObject> globalDuplicatedObjectsLight = new List<GameObject>();
-    private static List<GameObject> globalDuplicatedObjectsDark = new List<GameObject>();
+    // No need for tracking lists - we'll find objects by name instead
     
     // Public property for intensity light (light mode)
     public int IntensityLight
@@ -208,16 +206,6 @@ public class BoostIntensityManager : MonoBehaviour
                     duplicate.hideFlags = HideFlags.DontSaveInEditor;
                 }
                 
-                // Add to appropriate global list based on mode
-                if (mode == "light")
-                {
-                    globalDuplicatedObjectsLight.Add(duplicate);
-                }
-                else if (mode == "dark")
-                {
-                    globalDuplicatedObjectsDark.Add(duplicate);
-                }
-                
                 UnityEngine.Debug.Log($"Created duplicate: {duplicate.name} at position {duplicatePosition}");
             }
             catch (System.Exception e)
@@ -228,46 +216,62 @@ public class BoostIntensityManager : MonoBehaviour
     }
     
     
-    // Clean up all duplicated objects
-    private void CleanupAllDuplicatedObjects()
+    // Clean up all duplicated objects by finding objects with "boost" in their name
+    private void CleanupAllDuplicatedObjects(bool deferFromOnValidate = false)
     {
-        UnityEngine.Debug.Log($"CleanupAllDuplicatedObjects called, found {globalDuplicatedObjectsLight.Count} light duplicates and {globalDuplicatedObjectsDark.Count} dark duplicates to clean up");
-        
-        // Clean up light mode duplicates
-        foreach (GameObject duplicate in globalDuplicatedObjectsLight.ToArray())
+        // If called from OnValidate, defer the cleanup to avoid DestroyImmediate restrictions
+        if (deferFromOnValidate && !Application.isPlaying)
         {
-            if (duplicate != null)
+            EditorApplication.delayCall += () => {
+                CleanupAllDuplicatedObjectsInternal();
+            };
+            return;
+        }
+        
+        CleanupAllDuplicatedObjectsInternal();
+    }
+    
+    // Internal cleanup method that actually performs the destruction
+    private void CleanupAllDuplicatedObjectsInternal()
+    {
+        // Find all GameObjects in the scene, including inactive ones
+        GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        List<GameObject> objectsToDestroy = new List<GameObject>();
+        
+        foreach (GameObject obj in allGameObjects)
+        {
+            // Only process objects that are in the scene (not prefabs or assets)
+            if (obj.scene.IsValid())
             {
-                UnityEngine.Debug.Log($"Destroying light duplicate: {duplicate.name}");
-                if (!Application.isPlaying)
+                // Check if object name contains "boost" (case insensitive)
+                if (obj.name.ToLower().Contains("boost"))
                 {
-                    DestroyImmediate(duplicate);
-                }
-                else
-                {
-                    Destroy(duplicate);
+                    objectsToDestroy.Add(obj);
                 }
             }
         }
-        globalDuplicatedObjectsLight.Clear();
         
-        // Clean up dark mode duplicates
-        foreach (GameObject duplicate in globalDuplicatedObjectsDark.ToArray())
+        // Destroy found objects
+        foreach (GameObject obj in objectsToDestroy)
         {
-            if (duplicate != null)
+            if (obj != null)
             {
-                UnityEngine.Debug.Log($"Destroying dark duplicate: {duplicate.name}");
+                UnityEngine.Debug.Log($"Destroying boost object: {obj.name}");
                 if (!Application.isPlaying)
                 {
-                    DestroyImmediate(duplicate);
+                    DestroyImmediate(obj);
                 }
                 else
                 {
-                    Destroy(duplicate);
+                    Destroy(obj);
                 }
             }
         }
-        globalDuplicatedObjectsDark.Clear();
+        
+        if (objectsToDestroy.Count > 0)
+        {
+            UnityEngine.Debug.Log($"Cleaned up {objectsToDestroy.Count} boost objects");
+        }
     }
     
     // Clean up duplicates and recreate them (useful for play mode transitions)
@@ -324,7 +328,66 @@ public class BoostIntensityManager : MonoBehaviour
     public void OnDarkModeChanged()
     {
         UnityEngine.Debug.Log("Dark mode changed, refreshing duplicates");
-        RefreshDuplicates();
+        RefreshDuplicatesFromOnValidate();
+    }
+    
+    // Refresh duplicates when called from OnValidate
+    private void RefreshDuplicatesFromOnValidate()
+    {
+        bool isDarkMode = IsDarkMode();
+        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
+        string currentMode = isDarkMode ? "dark" : "light";
+        
+        UnityEngine.Debug.Log($"RefreshDuplicatesFromOnValidate called with {currentMode} intensity: {currentIntensity}");
+        
+        // Clean up existing duplicates with deferred cleanup
+        CleanupAllDuplicatedObjects(deferFromOnValidate: true);
+        
+        // Recreate duplicates if current intensity is not 1
+        if (currentIntensity != 1)
+        {
+            UnityEngine.Debug.Log($"Recreating duplicates for {currentMode} intensity: {currentIntensity}");
+            // Defer the recreation as well to ensure cleanup completes first
+            EditorApplication.delayCall += () => {
+                ApplyBoostIntensityWithoutCleanup();
+            };
+        }
+    }
+    
+    // Apply boost intensity without cleanup (for refresh scenarios)
+    private void ApplyBoostIntensityWithoutCleanup()
+    {
+        // Get current dark mode state
+        bool isDarkMode = IsDarkMode();
+        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
+        string currentMode = isDarkMode ? "dark" : "light";
+        
+        UnityEngine.Debug.Log($"ApplyBoostIntensityWithoutCleanup called with {currentMode} mode intensity: {currentIntensity}");
+        
+        // Find all SkinnedMeshRenderer objects in the scene (including inactive ones)
+        List<GameObject> objectsToDuplicate = FindSkinnedMeshObjects();
+        
+        // Small delay to ensure cleanup completes before duplication
+        if (!Application.isPlaying)
+        {
+            EditorApplication.delayCall += () => {
+                // Duplicate each object for the current mode only
+                foreach (GameObject originalObject in objectsToDuplicate)
+                {
+                    DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
+                }
+                UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+            };
+        }
+        else
+        {
+            // In play mode, duplicate immediately
+            foreach (GameObject originalObject in objectsToDuplicate)
+            {
+                DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
+            }
+            UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+        }
     }
     
     // Context menu for easy testing
