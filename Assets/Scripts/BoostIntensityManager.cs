@@ -2,24 +2,39 @@
 using UnityEditor;
 using System.Collections.Generic;
 
-// Intensity is now an integer from 1-10
-
+/// <summary>
+/// Manages boost intensity for hand mesh objects with support for light and dark modes.
+/// Creates duplicates of SkinnedMeshRenderer objects based on intensity settings.
+/// </summary>
 public class BoostIntensityManager : MonoBehaviour
 {
+    #region Constants
+    private const int MIN_INTENSITY = 1;
+    private const int MAX_INTENSITY = 10;
+    private const string BOOST_SUFFIX = "_Boost_";
+    private const string LIGHT_MODE = "light";
+    private const string DARK_MODE = "dark";
+    #endregion
+
+    #region Serialized Fields
     [Header("Intensity Settings")]
-    [SerializeField, Range(1, 10)] private int intensityLight = 1;
-    [SerializeField, Range(1, 10)] private int intensityDark = 1;
+    [SerializeField, Range(MIN_INTENSITY, MAX_INTENSITY)] private int intensityLight = MIN_INTENSITY;
+    [SerializeField, Range(MIN_INTENSITY, MAX_INTENSITY)] private int intensityDark = MIN_INTENSITY;
     
     [Header("References")]
-    [SerializeField] private GlobalFrameRecorder globalFrameRecorder; // Reference to GlobalFrameRecorder
-    
-    private int previousIntensityLight = 1;
-    private int previousIntensityDark = 1;
+    [SerializeField] private GlobalFrameRecorder globalFrameRecorder;
+    #endregion
+
+    #region Private Fields
+    private int previousIntensityLight = MIN_INTENSITY;
+    private int previousIntensityDark = MIN_INTENSITY;
     private bool isProcessingBoostIntensity = false;
+    #endregion
     
-    // No need for tracking lists - we'll find objects by name instead
-    
-    // Public property for intensity light (light mode)
+    #region Public Properties
+    /// <summary>
+    /// Gets or sets the intensity for light mode (1-10)
+    /// </summary>
     public int IntensityLight
     {
         get => intensityLight;
@@ -27,13 +42,15 @@ public class BoostIntensityManager : MonoBehaviour
         {
             if (intensityLight != value)
             {
-                intensityLight = Mathf.Clamp(value, 1, 10); // Ensure value is within range
+                intensityLight = Mathf.Clamp(value, MIN_INTENSITY, MAX_INTENSITY);
                 ApplyBoostIntensity();
             }
         }
     }
     
-    // Public property for intensity dark (dark mode)
+    /// <summary>
+    /// Gets or sets the intensity for dark mode (1-10)
+    /// </summary>
     public int IntensityDark
     {
         get => intensityDark;
@@ -41,15 +58,16 @@ public class BoostIntensityManager : MonoBehaviour
         {
             if (intensityDark != value)
             {
-                intensityDark = Mathf.Clamp(value, 1, 10); // Ensure value is within range
+                intensityDark = Mathf.Clamp(value, MIN_INTENSITY, MAX_INTENSITY);
                 ApplyBoostIntensity();
             }
         }
     }
+    #endregion
     
+    #region Unity Lifecycle
     private void OnValidate()
     {
-        // Only run in edit mode to avoid issues in play mode
         if (!Application.isPlaying && !isProcessingBoostIntensity)
         {
             bool lightModeChanged = intensityLight != previousIntensityLight;
@@ -59,7 +77,6 @@ public class BoostIntensityManager : MonoBehaviour
             {
                 isProcessingBoostIntensity = true;
                 
-                // Defer the operation to avoid DestroyImmediate restrictions in OnValidate
                 EditorApplication.delayCall += () => {
                     previousIntensityLight = intensityLight;
                     previousIntensityDark = intensityDark;
@@ -70,327 +87,353 @@ public class BoostIntensityManager : MonoBehaviour
         }
     }
     
-    void Start()
+    private void Start()
     {
-        // Automatically recreate duplicates when entering play mode
-        bool isDarkMode = IsDarkMode();
-        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
-        string currentMode = isDarkMode ? "dark" : "light";
+        var (currentIntensity, currentMode) = GetCurrentIntensityAndMode();
         
-        if (Application.isPlaying && currentIntensity != 1)
+        if (Application.isPlaying && currentIntensity != MIN_INTENSITY)
         {
-            UnityEngine.Debug.Log($"BoostIntensityManager: Auto-recreating duplicates for {currentMode} intensity {currentIntensity} on play mode start");
+            Debug.Log($"BoostIntensityManager: Auto-recreating duplicates for {currentMode} intensity {currentIntensity} on play mode start");
             ApplyBoostIntensity();
         }
     }
     
     private void OnDestroy()
     {
-        // Clean up when the manager is destroyed
         CleanupAllDuplicatedObjects();
     }
+    #endregion
     
-    // Apply boost intensity by duplicating SkinnedMeshRenderer objects
+    #region Helper Methods
+    /// <summary>
+    /// Gets the current intensity and mode based on dark mode state
+    /// </summary>
+    private (int intensity, string mode) GetCurrentIntensityAndMode()
+    {
+        bool isDarkMode = GetDarkModeState();
+        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
+        string currentMode = isDarkMode ? DARK_MODE : LIGHT_MODE;
+        return (currentIntensity, currentMode);
+    }
+    
+    /// <summary>
+    /// Checks if the GlobalFrameRecorder is in dark mode
+    /// </summary>
+    private bool GetDarkModeState()
+    {
+        return globalFrameRecorder?.IsDarkMode ?? false;
+    }
+    #endregion
+
+    #region Core Intensity Management
+    /// <summary>
+    /// Applies boost intensity by duplicating SkinnedMeshRenderer objects
+    /// </summary>
     public void ApplyBoostIntensity()
     {
-        // Get current dark mode state
-        bool isDarkMode = IsDarkMode();
-        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
-        string currentMode = isDarkMode ? "dark" : "light";
+        var (currentIntensity, currentMode) = GetCurrentIntensityAndMode();
         
-        UnityEngine.Debug.Log($"ApplyBoostIntensity called with {currentMode} mode intensity: {currentIntensity}");
+        Debug.Log($"ApplyBoostIntensity called with {currentMode} mode intensity: {currentIntensity}");
         
-        // Find all SkinnedMeshRenderer objects in the scene (including inactive ones)
         List<GameObject> objectsToDuplicate = FindSkinnedMeshObjects();
-        
-        // Clean up existing duplicates first
         CleanupAllDuplicatedObjects();
         
-        // Small delay to ensure cleanup completes before duplication
+        ExecuteDuplication(objectsToDuplicate, currentIntensity, currentMode);
+    }
+    
+    /// <summary>
+    /// Applies boost intensity without cleanup (for refresh scenarios)
+    /// </summary>
+    private void ApplyBoostIntensityWithoutCleanup()
+    {
+        var (currentIntensity, currentMode) = GetCurrentIntensityAndMode();
+        
+        Debug.Log($"ApplyBoostIntensityWithoutCleanup called with {currentMode} mode intensity: {currentIntensity}");
+        
+        List<GameObject> objectsToDuplicate = FindSkinnedMeshObjects();
+        ExecuteDuplication(objectsToDuplicate, currentIntensity, currentMode);
+    }
+    
+    /// <summary>
+    /// Executes the duplication logic with proper timing
+    /// </summary>
+    private void ExecuteDuplication(List<GameObject> objectsToDuplicate, int currentIntensity, string currentMode)
+    {
         if (!Application.isPlaying)
         {
             EditorApplication.delayCall += () => {
-                // Duplicate each object for the current mode only
-                foreach (GameObject originalObject in objectsToDuplicate)
-                {
-                    DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
-                }
-                UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+                DuplicateObjects(objectsToDuplicate, currentIntensity, currentMode);
             };
         }
         else
         {
-            // In play mode, duplicate immediately
-            foreach (GameObject originalObject in objectsToDuplicate)
-            {
-                DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
-            }
-            UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+            DuplicateObjects(objectsToDuplicate, currentIntensity, currentMode);
         }
     }
     
-    // Find all SkinnedMeshRenderer objects in the scene
+    /// <summary>
+    /// Duplicates the objects and logs the result
+    /// </summary>
+    private void DuplicateObjects(List<GameObject> objectsToDuplicate, int currentIntensity, string currentMode)
+    {
+        foreach (GameObject originalObject in objectsToDuplicate)
+        {
+            DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
+        }
+        Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+    }
+    #endregion
+    
+    #region Object Management
+    /// <summary>
+    /// Finds all SkinnedMeshRenderer objects in the scene that should be duplicated
+    /// </summary>
     private List<GameObject> FindSkinnedMeshObjects()
     {
         List<GameObject> objectsToDuplicate = new List<GameObject>();
-        
-        // Get all GameObjects in the scene, including inactive ones
         GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
         
         foreach (GameObject obj in allGameObjects)
         {
-            // Only process objects that are in the scene (not prefabs or assets)
-            if (obj.scene.IsValid())
+            if (obj.scene.IsValid() && IsValidHandMeshObject(obj))
             {
-                SkinnedMeshRenderer skinnedMeshRenderer = obj.GetComponent<SkinnedMeshRenderer>();
-                if (skinnedMeshRenderer != null)
-                {
-                    // Check if this is likely a hand/mesh object and not already a duplicate
-                    if (IsHandMeshObject(obj) && !obj.name.Contains("_Boost_"))
-                    {
-                        objectsToDuplicate.Add(obj);
-                    }
-                }
+                objectsToDuplicate.Add(obj);
             }
         }
         
         return objectsToDuplicate;
     }
     
-    // Check if an object is likely a hand mesh object
+    /// <summary>
+    /// Checks if an object is a valid hand mesh object for duplication
+    /// </summary>
+    private bool IsValidHandMeshObject(GameObject obj)
+    {
+        if (obj == null) return false;
+        
+        SkinnedMeshRenderer skinnedMeshRenderer = obj.GetComponent<SkinnedMeshRenderer>();
+        if (skinnedMeshRenderer == null) return false;
+        
+        return IsHandMeshObject(obj) && !obj.name.Contains(BOOST_SUFFIX);
+    }
+    
+    /// <summary>
+    /// Checks if an object is likely a hand mesh object
+    /// </summary>
     private bool IsHandMeshObject(GameObject obj)
     {
         if (obj == null) return false;
         
         string objName = obj.name.ToLower();
         
-        // Check for hand-related keywords
         bool hasHandKeyword = objName.Contains("hand") || objName.Contains("finger") || 
                              objName.Contains("thumb") || objName.Contains("palm");
         
-        // Check for mesh-related keywords
-        bool hasMeshKeyword = objName.Contains("mesh") || objName.Contains("model") || 
-                             objName.Contains("geometry");
-        
-        // Check if it's not a UI element
         bool isNotUI = !objName.Contains("ui") && !objName.Contains("canvas") && 
                        !objName.Contains("button") && !objName.Contains("panel");
         
-        // Check if it's not a camera or light
         bool isNotCameraLight = !objName.Contains("camera") && !objName.Contains("light") && 
                                !objName.Contains("directional") && !objName.Contains("spot");
         
-        // Must have hand keyword and not be UI/camera/light
         return hasHandKeyword && isNotUI && isNotCameraLight;
     }
     
-    // Duplicate a SkinnedMeshRenderer object based on boost intensity and mode
+    /// <summary>
+    /// Duplicates a SkinnedMeshRenderer object based on boost intensity and mode
+    /// </summary>
     private void DuplicateSkinnedMeshObject(GameObject originalObject, int intensity, string mode)
     {
-        int duplicateCount = intensity - 1; // Subtract 1 because original object already exists
+        int duplicateCount = intensity - MIN_INTENSITY; // Subtract 1 because original object already exists
         
         for (int i = 0; i < duplicateCount; i++)
         {
             try
             {
-                // No offset: all duplicates at the same position as the original
-                Vector3 duplicatePosition = originalObject.transform.position;
-                
-                // Instantiate the duplicate
-                GameObject duplicate = Instantiate(originalObject, duplicatePosition, originalObject.transform.rotation, originalObject.transform.parent);
-                duplicate.name = originalObject.name + "_Boost_" + mode + "_" + (i + 1);
-                
-                // Mark as don't save in editor to avoid scene pollution
-                if (!Application.isPlaying)
-                {
-                    duplicate.hideFlags = HideFlags.DontSaveInEditor;
-                }
-                
-                UnityEngine.Debug.Log($"Created duplicate: {duplicate.name} at position {duplicatePosition}");
+                CreateDuplicate(originalObject, mode, i + 1);
             }
             catch (System.Exception e)
             {
-                UnityEngine.Debug.LogError($"Failed to duplicate {originalObject.name} for {mode} mode: {e.Message}");
+                Debug.LogError($"Failed to duplicate {originalObject.name} for {mode} mode: {e.Message}");
             }
         }
     }
     
+    /// <summary>
+    /// Creates a single duplicate object
+    /// </summary>
+    private void CreateDuplicate(GameObject originalObject, string mode, int index)
+    {
+        Vector3 duplicatePosition = originalObject.transform.position;
+        
+        GameObject duplicate = Instantiate(originalObject, duplicatePosition, originalObject.transform.rotation, originalObject.transform.parent);
+        duplicate.name = $"{originalObject.name}{BOOST_SUFFIX}{mode}_{index}";
+        
+        if (!Application.isPlaying)
+        {
+            duplicate.hideFlags = HideFlags.DontSaveInEditor;
+        }
+        
+        Debug.Log($"Created duplicate: {duplicate.name} at position {duplicatePosition}");
+    }
+    #endregion
     
-    // Clean up all duplicated objects by finding objects with "boost" in their name
+    
+    #region Cleanup Management
+    /// <summary>
+    /// Cleans up all duplicated objects by finding objects with "boost" in their name
+    /// </summary>
     private void CleanupAllDuplicatedObjects(bool deferFromOnValidate = false)
     {
-        // If called from OnValidate, defer the cleanup to avoid DestroyImmediate restrictions
         if (deferFromOnValidate && !Application.isPlaying)
         {
-            EditorApplication.delayCall += () => {
-                CleanupAllDuplicatedObjectsInternal();
-            };
+            EditorApplication.delayCall += CleanupAllDuplicatedObjectsInternal;
             return;
         }
         
         CleanupAllDuplicatedObjectsInternal();
     }
     
-    // Internal cleanup method that actually performs the destruction
+    /// <summary>
+    /// Internal cleanup method that actually performs the destruction
+    /// </summary>
     private void CleanupAllDuplicatedObjectsInternal()
     {
-        // Find all GameObjects in the scene, including inactive ones
-        GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-        List<GameObject> objectsToDestroy = new List<GameObject>();
+        List<GameObject> objectsToDestroy = FindBoostObjects();
         
-        foreach (GameObject obj in allGameObjects)
-        {
-            // Only process objects that are in the scene (not prefabs or assets)
-            if (obj.scene.IsValid())
-            {
-                // Check if object name contains "boost" (case insensitive)
-                if (obj.name.ToLower().Contains("boost"))
-                {
-                    objectsToDestroy.Add(obj);
-                }
-            }
-        }
-        
-        // Destroy found objects
         foreach (GameObject obj in objectsToDestroy)
         {
-            if (obj != null)
-            {
-                UnityEngine.Debug.Log($"Destroying boost object: {obj.name}");
-                if (!Application.isPlaying)
-                {
-                    DestroyImmediate(obj);
-                }
-                else
-                {
-                    Destroy(obj);
-                }
-            }
+            DestroyBoostObject(obj);
         }
         
         if (objectsToDestroy.Count > 0)
         {
-            UnityEngine.Debug.Log($"Cleaned up {objectsToDestroy.Count} boost objects");
+            Debug.Log($"Cleaned up {objectsToDestroy.Count} boost objects");
         }
     }
     
-    // Clean up duplicates and recreate them (useful for play mode transitions)
+    /// <summary>
+    /// Finds all objects with "boost" in their name
+    /// </summary>
+    private List<GameObject> FindBoostObjects()
+    {
+        List<GameObject> objectsToDestroy = new List<GameObject>();
+        GameObject[] allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        
+        foreach (GameObject obj in allGameObjects)
+        {
+            if (obj.scene.IsValid() && obj.name.ToLower().Contains("boost"))
+            {
+                objectsToDestroy.Add(obj);
+            }
+        }
+        
+        return objectsToDestroy;
+    }
+    
+    /// <summary>
+    /// Destroys a boost object with appropriate method based on context
+    /// </summary>
+    private void DestroyBoostObject(GameObject obj)
+    {
+        if (obj == null) return;
+        
+        Debug.Log($"Destroying boost object: {obj.name}");
+        
+        if (!Application.isPlaying)
+        {
+            DestroyImmediate(obj);
+        }
+        else
+        {
+            Destroy(obj);
+        }
+    }
+    #endregion
+    
+    #region Public API
+    /// <summary>
+    /// Cleans up duplicates and recreates them (useful for play mode transitions)
+    /// </summary>
     public void RefreshDuplicates()
     {
-        bool isDarkMode = IsDarkMode();
-        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
-        string currentMode = isDarkMode ? "dark" : "light";
+        var (currentIntensity, currentMode) = GetCurrentIntensityAndMode();
         
-        UnityEngine.Debug.Log($"RefreshDuplicates called with {currentMode} intensity: {currentIntensity}");
+        Debug.Log($"RefreshDuplicates called with {currentMode} intensity: {currentIntensity}");
         
-        // Clean up existing duplicates
         CleanupAllDuplicatedObjects();
         
-        // Recreate duplicates if current intensity is not 1
-        if (currentIntensity != 1)
+        if (currentIntensity != MIN_INTENSITY)
         {
-            UnityEngine.Debug.Log($"Recreating duplicates for {currentMode} intensity: {currentIntensity}");
+            Debug.Log($"Recreating duplicates for {currentMode} intensity: {currentIntensity}");
             ApplyBoostIntensity();
         }
     }
     
-    // Public method to manually clean up (useful for runtime)
+    /// <summary>
+    /// Manually cleans up all boost objects (useful for runtime)
+    /// </summary>
     public void CleanupDuplicates()
     {
         CleanupAllDuplicatedObjects();
     }
     
-    // Public method to manually apply intensity light (useful for runtime)
+    /// <summary>
+    /// Manually sets the light mode intensity (useful for runtime)
+    /// </summary>
     public void SetIntensityLight(int newIntensity)
     {
-        intensityLight = Mathf.Clamp(newIntensity, 1, 10); // Ensure value is within range
+        intensityLight = Mathf.Clamp(newIntensity, MIN_INTENSITY, MAX_INTENSITY);
         ApplyBoostIntensity();
     }
     
-    // Public method to manually apply intensity dark (useful for runtime)
+    /// <summary>
+    /// Manually sets the dark mode intensity (useful for runtime)
+    /// </summary>
     public void SetIntensityDark(int newIntensity)
     {
-        intensityDark = Mathf.Clamp(newIntensity, 1, 10); // Ensure value is within range
+        intensityDark = Mathf.Clamp(newIntensity, MIN_INTENSITY, MAX_INTENSITY);
         ApplyBoostIntensity();
     }
     
-    // Public method to get current dark mode state from GlobalFrameRecorder
+    /// <summary>
+    /// Gets the current dark mode state from GlobalFrameRecorder
+    /// </summary>
     public bool IsDarkMode()
     {
-        if (globalFrameRecorder != null)
-        {
-            return globalFrameRecorder.IsDarkMode;
-        }
-        return false; // Default to light mode if no reference
+        return globalFrameRecorder?.IsDarkMode ?? false;
     }
     
-    // Public method to refresh duplicates when dark mode changes
+    /// <summary>
+    /// Called when dark mode changes to refresh duplicates
+    /// </summary>
     public void OnDarkModeChanged()
     {
-        UnityEngine.Debug.Log("Dark mode changed, refreshing duplicates");
+        Debug.Log("Dark mode changed, refreshing duplicates");
         RefreshDuplicatesFromOnValidate();
     }
-    
-    // Refresh duplicates when called from OnValidate
+    #endregion
+
+    #region OnValidate Handling
+    /// <summary>
+    /// Refresh duplicates when called from OnValidate context
+    /// </summary>
     private void RefreshDuplicatesFromOnValidate()
     {
-        bool isDarkMode = IsDarkMode();
-        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
-        string currentMode = isDarkMode ? "dark" : "light";
+        var (currentIntensity, currentMode) = GetCurrentIntensityAndMode();
         
-        UnityEngine.Debug.Log($"RefreshDuplicatesFromOnValidate called with {currentMode} intensity: {currentIntensity}");
+        Debug.Log($"RefreshDuplicatesFromOnValidate called with {currentMode} intensity: {currentIntensity}");
         
-        // Clean up existing duplicates with deferred cleanup
         CleanupAllDuplicatedObjects(deferFromOnValidate: true);
         
-        // Recreate duplicates if current intensity is not 1
-        if (currentIntensity != 1)
+        if (currentIntensity != MIN_INTENSITY)
         {
-            UnityEngine.Debug.Log($"Recreating duplicates for {currentMode} intensity: {currentIntensity}");
-            // Defer the recreation as well to ensure cleanup completes first
-            EditorApplication.delayCall += () => {
-                ApplyBoostIntensityWithoutCleanup();
-            };
+            Debug.Log($"Recreating duplicates for {currentMode} intensity: {currentIntensity}");
+            EditorApplication.delayCall += ApplyBoostIntensityWithoutCleanup;
         }
     }
-    
-    // Apply boost intensity without cleanup (for refresh scenarios)
-    private void ApplyBoostIntensityWithoutCleanup()
-    {
-        // Get current dark mode state
-        bool isDarkMode = IsDarkMode();
-        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
-        string currentMode = isDarkMode ? "dark" : "light";
-        
-        UnityEngine.Debug.Log($"ApplyBoostIntensityWithoutCleanup called with {currentMode} mode intensity: {currentIntensity}");
-        
-        // Find all SkinnedMeshRenderer objects in the scene (including inactive ones)
-        List<GameObject> objectsToDuplicate = FindSkinnedMeshObjects();
-        
-        // Small delay to ensure cleanup completes before duplication
-        if (!Application.isPlaying)
-        {
-            EditorApplication.delayCall += () => {
-                // Duplicate each object for the current mode only
-                foreach (GameObject originalObject in objectsToDuplicate)
-                {
-                    DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
-                }
-                UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
-            };
-        }
-        else
-        {
-            // In play mode, duplicate immediately
-            foreach (GameObject originalObject in objectsToDuplicate)
-            {
-                DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
-            }
-            UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
-        }
-    }
-    
-    // Context menu for easy testing
+    #endregion
+
+    #region Context Menu
     [ContextMenu("Refresh Duplicates")]
     public void RefreshDuplicatesContextMenu()
     {
@@ -402,4 +445,5 @@ public class BoostIntensityManager : MonoBehaviour
     {
         OnDarkModeChanged();
     }
+    #endregion
 }
