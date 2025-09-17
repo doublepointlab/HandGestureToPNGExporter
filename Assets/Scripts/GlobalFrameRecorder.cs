@@ -21,6 +21,7 @@ public class GlobalFrameRecorder : MonoBehaviour
     [SerializeField] private bool isFadingOut = false; // Flag to check if fading out
     [SerializeField] private bool isDarkMode = false; // Dark mode toggle
     private bool previousDarkMode = false; // Track previous dark mode state for change detection
+    [SerializeField] private bool isLooping = true; // Animation looping toggle
     
     [Header("Icon Settings")]
     [SerializeField] private bool showIcon = true; // Show icon toggle
@@ -45,6 +46,9 @@ public class GlobalFrameRecorder : MonoBehaviour
     
     // Public getter for dark mode state
     public bool IsDarkMode => isDarkMode;
+    
+    // Public getter for looping state
+    public bool IsLooping => isLooping;
     
     private int frameCount = 0; // Counter for frames
     private int actualFrameCount = 0; // Counter for actual saved frames

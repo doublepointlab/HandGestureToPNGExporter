@@ -15,6 +15,7 @@ public class GlobalFrameRecorderEditor : Editor
     private SerializedProperty isFadingIn;
     private SerializedProperty isFadingOut;
     private SerializedProperty isDarkMode;
+    private SerializedProperty isLooping;
     private SerializedProperty showIcon;
     private SerializedProperty iconGameObject;
     private SerializedProperty isRecording;
@@ -36,6 +37,7 @@ public class GlobalFrameRecorderEditor : Editor
         isFadingIn = serializedObject.FindProperty("isFadingIn");
         isFadingOut = serializedObject.FindProperty("isFadingOut");
         isDarkMode = serializedObject.FindProperty("isDarkMode");
+        isLooping = serializedObject.FindProperty("isLooping");
         showIcon = serializedObject.FindProperty("showIcon");
         iconGameObject = serializedObject.FindProperty("iconGameObject");
         isRecording = serializedObject.FindProperty("isRecording");
@@ -59,6 +61,7 @@ public class GlobalFrameRecorderEditor : Editor
         // Recording settings
         EditorGUILayout.LabelField("Recording Settings", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(isRecording, new GUIContent("Is Recording"));
+        EditorGUILayout.PropertyField(isLooping, new GUIContent("Is Looping"));
         EditorGUILayout.Space();
 
         // Export settings

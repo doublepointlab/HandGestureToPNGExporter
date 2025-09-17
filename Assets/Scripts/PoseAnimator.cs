@@ -25,6 +25,7 @@ public class PoseAnimator : MonoBehaviour
     private int frameRate = 0;
     [HideInInspector] public int animationCount = 0;
     [SerializeField] private GlobalFrameRecorder globalFrameRecorder;
+    private bool isAnimationComplete = false; // Track if animation has completed (for non-looping mode)
 
     // Events for pose index changes
     public static event Action<int> OnPoseIndexChanged;
@@ -57,6 +58,7 @@ public class PoseAnimator : MonoBehaviour
         UpdateCurrentPose(0);
         UpdateTargetPose(1);
         visiblePoseHandJoints = transform.GetComponentsInChildren<Transform>();
+        isAnimationComplete = false; // Reset animation completion state
     }
 
     private void OnValidate()
@@ -116,6 +118,12 @@ public class PoseAnimator : MonoBehaviour
             return;
         }
 
+        // Don't update if animation is complete and not looping
+        if (isAnimationComplete && globalFrameRecorder != null && !globalFrameRecorder.IsLooping)
+        {
+            return;
+        }
+
         int totalFramesForCurrentPose = Mathf.RoundToInt(durations[currentPoseIndex] * frameRate);
         int currentFrame = Mathf.RoundToInt(elapsedTime * frameRate);
 
@@ -126,7 +134,29 @@ public class PoseAnimator : MonoBehaviour
         {
             elapsedTime -= durations[currentPoseIndex]; // Reset elapsedTime for the next cycle
             UpdateCurrentPose(targetPoseIndex); // Update current pose to the target pose
-            UpdateTargetPose((targetPoseIndex + 1) % handPoses.Length); // Set the next target pose
+            
+            // Check if we should loop or stop
+            bool shouldLoop = globalFrameRecorder != null ? globalFrameRecorder.IsLooping : true;
+            
+            if (shouldLoop)
+            {
+                UpdateTargetPose((targetPoseIndex + 1) % handPoses.Length); // Set the next target pose (loop)
+            }
+            else
+            {
+                // Non-looping mode: check if we've reached the last pose
+                if (targetPoseIndex >= handPoses.Length - 1)
+                {
+                    // We've reached the last pose, stop the animation
+                    isAnimationComplete = true;
+                    UnityEngine.Debug.Log("Animation completed (non-looping mode)");
+                }
+                else
+                {
+                    // Move to next pose
+                    UpdateTargetPose(targetPoseIndex + 1);
+                }
+            }
         }
 
         float timeToUse = (float)currentFrame / totalFramesForCurrentPose;
@@ -150,8 +180,21 @@ public class PoseAnimator : MonoBehaviour
             }
         }
 
-        // Exit playmode when the total time has passed
-        if (accumulatedTime >= totalTime)
+        // Exit playmode when the total time has passed OR when animation is complete in non-looping mode
+        bool shouldExitPlaymode = false;
+        
+        if (globalFrameRecorder != null && !globalFrameRecorder.IsLooping && isAnimationComplete)
+        {
+            // Non-looping mode: exit when animation is complete
+            shouldExitPlaymode = true;
+        }
+        else if (accumulatedTime >= totalTime)
+        {
+            // Looping mode: exit when total time has passed
+            shouldExitPlaymode = true;
+        }
+        
+        if (shouldExitPlaymode)
         {
             animationCount++;
             if (globalFrameRecorder != null && globalFrameRecorder.isRecording)
