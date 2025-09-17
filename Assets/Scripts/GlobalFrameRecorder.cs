@@ -20,6 +20,10 @@ public class GlobalFrameRecorder : MonoBehaviour
     [SerializeField] private bool isFadingOut = false; // Flag to check if fading out
     [SerializeField] private bool isDarkMode = false; // Dark mode toggle
     
+    [Header("Icon Settings")]
+    [SerializeField] private bool showIcon = true; // Show icon toggle
+    [SerializeField] private GameObject iconGameObject; // Reference to icon GameObject
+    
     [Header("Bounce Animation Settings")]
     [SerializeField] private bool enableBounceAnimation = true; // Enable bounce animation
     [SerializeField] private float bounceDuration = 0.5f; // Duration of bounce animation
@@ -36,6 +40,9 @@ public class GlobalFrameRecorder : MonoBehaviour
     
     // Public getter for current output name
     private string CurrentOutputName => currentOutputName;
+    
+    // Public getter for dark mode state
+    public bool IsDarkMode => isDarkMode;
     
     private int frameCount = 0; // Counter for frames
     private int actualFrameCount = 0; // Counter for actual saved frames
@@ -95,6 +102,9 @@ public class GlobalFrameRecorder : MonoBehaviour
         
         // Apply dark mode settings
         ApplyDarkModeSettings();
+        
+        // Apply icon visibility settings
+        SetIconVisibility(showIcon);
     }
 
     // Method to toggle dark mode at runtime
@@ -104,6 +114,25 @@ public class GlobalFrameRecorder : MonoBehaviour
         UpdateOutputName();
         ApplyDarkModeSettings();
         UnityEngine.Debug.Log($"Dark mode toggled to: {isDarkMode}");
+    }
+
+    // Method to toggle icon visibility at runtime
+    private void ToggleIconVisibility()
+    {
+        showIcon = !showIcon;
+        SetIconVisibility(showIcon);
+        UnityEngine.Debug.Log($"Icon visibility toggled to: {showIcon}");
+    }
+
+    // Method to set icon visibility
+    private void SetIconVisibility(bool visible)
+    {
+        showIcon = visible;
+        if (iconGameObject != null)
+        {
+            iconGameObject.SetActive(visible);
+        }
+        UnityEngine.Debug.Log($"Icon visibility set to: {visible}");
     }
 
     // Method to set dark mode
@@ -165,6 +194,9 @@ public class GlobalFrameRecorder : MonoBehaviour
         
         // Apply dark mode settings
         ApplyDarkModeSettings();
+        
+        // Apply icon visibility settings
+        SetIconVisibility(showIcon);
         
         StartRecording(); // Start the recording process
     }

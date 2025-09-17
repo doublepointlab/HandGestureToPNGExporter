@@ -1,28 +1,49 @@
-using UnityEngine;
+ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
-// Boost intensity is now an integer from 1-10
+// Intensity is now an integer from 1-10
 
 public class BoostIntensityManager : MonoBehaviour
 {
-    [SerializeField, Range(1, 10)] private int boostIntensity = 1;
+    [Header("Intensity Settings")]
+    [SerializeField, Range(1, 10)] private int intensityLight = 1;
+    [SerializeField, Range(1, 10)] private int intensityDark = 1;
     
-    private int previousBoostIntensity = 1;
+    [Header("References")]
+    [SerializeField] private GlobalFrameRecorder globalFrameRecorder; // Reference to GlobalFrameRecorder
+    
+    private int previousIntensityLight = 1;
+    private int previousIntensityDark = 1;
     private bool isProcessingBoostIntensity = false;
     
-    // Static list to track all duplicated objects across all instances
-    private static List<GameObject> globalDuplicatedObjects = new List<GameObject>();
+    // Static lists to track all duplicated objects across all instances
+    private static List<GameObject> globalDuplicatedObjectsLight = new List<GameObject>();
+    private static List<GameObject> globalDuplicatedObjectsDark = new List<GameObject>();
     
-    // Public property for boost intensity
-    public int BoostIntensity
+    // Public property for intensity light (light mode)
+    public int IntensityLight
     {
-        get => boostIntensity;
+        get => intensityLight;
         set
         {
-            if (boostIntensity != value)
+            if (intensityLight != value)
             {
-                boostIntensity = Mathf.Clamp(value, 1, 10); // Ensure value is within range
+                intensityLight = Mathf.Clamp(value, 1, 10); // Ensure value is within range
+                ApplyBoostIntensity();
+            }
+        }
+    }
+    
+    // Public property for intensity dark (dark mode)
+    public int IntensityDark
+    {
+        get => intensityDark;
+        set
+        {
+            if (intensityDark != value)
+            {
+                intensityDark = Mathf.Clamp(value, 1, 10); // Ensure value is within range
                 ApplyBoostIntensity();
             }
         }
@@ -31,25 +52,36 @@ public class BoostIntensityManager : MonoBehaviour
     private void OnValidate()
     {
         // Only run in edit mode to avoid issues in play mode
-        if (!Application.isPlaying && boostIntensity != previousBoostIntensity && !isProcessingBoostIntensity)
+        if (!Application.isPlaying && !isProcessingBoostIntensity)
         {
-            isProcessingBoostIntensity = true;
+            bool lightModeChanged = intensityLight != previousIntensityLight;
+            bool darkModeChanged = intensityDark != previousIntensityDark;
             
-            // Defer the operation to avoid DestroyImmediate restrictions in OnValidate
-            EditorApplication.delayCall += () => {
-                previousBoostIntensity = boostIntensity;
-                ApplyBoostIntensity();
-                isProcessingBoostIntensity = false;
-            };
+            if (lightModeChanged || darkModeChanged)
+            {
+                isProcessingBoostIntensity = true;
+                
+                // Defer the operation to avoid DestroyImmediate restrictions in OnValidate
+                EditorApplication.delayCall += () => {
+                    previousIntensityLight = intensityLight;
+                    previousIntensityDark = intensityDark;
+                    ApplyBoostIntensity();
+                    isProcessingBoostIntensity = false;
+                };
+            }
         }
     }
     
     void Start()
     {
         // Automatically recreate duplicates when entering play mode
-        if (Application.isPlaying && boostIntensity != 1)
+        bool isDarkMode = IsDarkMode();
+        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
+        string currentMode = isDarkMode ? "dark" : "light";
+        
+        if (Application.isPlaying && currentIntensity != 1)
         {
-            UnityEngine.Debug.Log($"BoostIntensityManager: Auto-recreating duplicates for intensity {boostIntensity} on play mode start");
+            UnityEngine.Debug.Log($"BoostIntensityManager: Auto-recreating duplicates for {currentMode} intensity {currentIntensity} on play mode start");
             ApplyBoostIntensity();
         }
     }
@@ -63,14 +95,12 @@ public class BoostIntensityManager : MonoBehaviour
     // Apply boost intensity by duplicating SkinnedMeshRenderer objects
     public void ApplyBoostIntensity()
     {
-        UnityEngine.Debug.Log($"ApplyBoostIntensity called with intensity: {boostIntensity}");
+        // Get current dark mode state
+        bool isDarkMode = IsDarkMode();
+        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
+        string currentMode = isDarkMode ? "dark" : "light";
         
-        if (boostIntensity == 1)
-        {
-            // Clean up existing duplicates when setting to 1
-            CleanupAllDuplicatedObjects();
-            return; // No duplication needed
-        }
+        UnityEngine.Debug.Log($"ApplyBoostIntensity called with {currentMode} mode intensity: {currentIntensity}");
         
         // Find all SkinnedMeshRenderer objects in the scene (including inactive ones)
         List<GameObject> objectsToDuplicate = FindSkinnedMeshObjects();
@@ -82,12 +112,12 @@ public class BoostIntensityManager : MonoBehaviour
         if (!Application.isPlaying)
         {
             EditorApplication.delayCall += () => {
-                // Duplicate each object
+                // Duplicate each object for the current mode only
                 foreach (GameObject originalObject in objectsToDuplicate)
                 {
-                    DuplicateSkinnedMeshObject(originalObject);
+                    DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
                 }
-                UnityEngine.Debug.Log($"Boost intensity {boostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+                UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
             };
         }
         else
@@ -95,9 +125,9 @@ public class BoostIntensityManager : MonoBehaviour
             // In play mode, duplicate immediately
             foreach (GameObject originalObject in objectsToDuplicate)
             {
-                DuplicateSkinnedMeshObject(originalObject);
+                DuplicateSkinnedMeshObject(originalObject, currentIntensity, currentMode);
             }
-            UnityEngine.Debug.Log($"Boost intensity {boostIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
+            UnityEngine.Debug.Log($"Boost intensity {currentMode} {currentIntensity}: Duplicated {objectsToDuplicate.Count} SkinnedMeshRenderer objects");
         }
     }
     
@@ -156,10 +186,10 @@ public class BoostIntensityManager : MonoBehaviour
         return hasHandKeyword && isNotUI && isNotCameraLight;
     }
     
-    // Duplicate a SkinnedMeshRenderer object based on boost intensity
-    private void DuplicateSkinnedMeshObject(GameObject originalObject)
+    // Duplicate a SkinnedMeshRenderer object based on boost intensity and mode
+    private void DuplicateSkinnedMeshObject(GameObject originalObject, int intensity, string mode)
     {
-        int duplicateCount = boostIntensity - 1; // Subtract 1 because original object already exists
+        int duplicateCount = intensity - 1; // Subtract 1 because original object already exists
         
         for (int i = 0; i < duplicateCount; i++)
         {
@@ -170,7 +200,7 @@ public class BoostIntensityManager : MonoBehaviour
                 
                 // Instantiate the duplicate
                 GameObject duplicate = Instantiate(originalObject, duplicatePosition, originalObject.transform.rotation, originalObject.transform.parent);
-                duplicate.name = originalObject.name + "_Boost_" + (i + 1);
+                duplicate.name = originalObject.name + "_Boost_" + mode + "_" + (i + 1);
                 
                 // Mark as don't save in editor to avoid scene pollution
                 if (!Application.isPlaying)
@@ -178,14 +208,21 @@ public class BoostIntensityManager : MonoBehaviour
                     duplicate.hideFlags = HideFlags.DontSaveInEditor;
                 }
                 
-                // Add to global list
-                globalDuplicatedObjects.Add(duplicate);
+                // Add to appropriate global list based on mode
+                if (mode == "light")
+                {
+                    globalDuplicatedObjectsLight.Add(duplicate);
+                }
+                else if (mode == "dark")
+                {
+                    globalDuplicatedObjectsDark.Add(duplicate);
+                }
                 
                 UnityEngine.Debug.Log($"Created duplicate: {duplicate.name} at position {duplicatePosition}");
             }
             catch (System.Exception e)
             {
-                UnityEngine.Debug.LogError($"Failed to duplicate {originalObject.name}: {e.Message}");
+                UnityEngine.Debug.LogError($"Failed to duplicate {originalObject.name} for {mode} mode: {e.Message}");
             }
         }
     }
@@ -194,13 +231,14 @@ public class BoostIntensityManager : MonoBehaviour
     // Clean up all duplicated objects
     private void CleanupAllDuplicatedObjects()
     {
-        UnityEngine.Debug.Log($"CleanupAllDuplicatedObjects called, found {globalDuplicatedObjects.Count} duplicates to clean up");
+        UnityEngine.Debug.Log($"CleanupAllDuplicatedObjects called, found {globalDuplicatedObjectsLight.Count} light duplicates and {globalDuplicatedObjectsDark.Count} dark duplicates to clean up");
         
-        foreach (GameObject duplicate in globalDuplicatedObjects.ToArray())
+        // Clean up light mode duplicates
+        foreach (GameObject duplicate in globalDuplicatedObjectsLight.ToArray())
         {
             if (duplicate != null)
             {
-                UnityEngine.Debug.Log($"Destroying duplicate: {duplicate.name}");
+                UnityEngine.Debug.Log($"Destroying light duplicate: {duplicate.name}");
                 if (!Application.isPlaying)
                 {
                     DestroyImmediate(duplicate);
@@ -211,21 +249,43 @@ public class BoostIntensityManager : MonoBehaviour
                 }
             }
         }
-        globalDuplicatedObjects.Clear();
+        globalDuplicatedObjectsLight.Clear();
+        
+        // Clean up dark mode duplicates
+        foreach (GameObject duplicate in globalDuplicatedObjectsDark.ToArray())
+        {
+            if (duplicate != null)
+            {
+                UnityEngine.Debug.Log($"Destroying dark duplicate: {duplicate.name}");
+                if (!Application.isPlaying)
+                {
+                    DestroyImmediate(duplicate);
+                }
+                else
+                {
+                    Destroy(duplicate);
+                }
+            }
+        }
+        globalDuplicatedObjectsDark.Clear();
     }
     
     // Clean up duplicates and recreate them (useful for play mode transitions)
     public void RefreshDuplicates()
     {
-        UnityEngine.Debug.Log($"RefreshDuplicates called with intensity: {boostIntensity}");
+        bool isDarkMode = IsDarkMode();
+        int currentIntensity = isDarkMode ? intensityDark : intensityLight;
+        string currentMode = isDarkMode ? "dark" : "light";
+        
+        UnityEngine.Debug.Log($"RefreshDuplicates called with {currentMode} intensity: {currentIntensity}");
         
         // Clean up existing duplicates
         CleanupAllDuplicatedObjects();
         
-        // Recreate duplicates if intensity is not 1
-        if (boostIntensity != 1)
+        // Recreate duplicates if current intensity is not 1
+        if (currentIntensity != 1)
         {
-            UnityEngine.Debug.Log($"Recreating duplicates for intensity: {boostIntensity}");
+            UnityEngine.Debug.Log($"Recreating duplicates for {currentMode} intensity: {currentIntensity}");
             ApplyBoostIntensity();
         }
     }
@@ -236,11 +296,35 @@ public class BoostIntensityManager : MonoBehaviour
         CleanupAllDuplicatedObjects();
     }
     
-    // Public method to manually apply boost intensity (useful for runtime)
-    public void SetBoostIntensity(int newIntensity)
+    // Public method to manually apply intensity light (useful for runtime)
+    public void SetIntensityLight(int newIntensity)
     {
-        boostIntensity = Mathf.Clamp(newIntensity, 1, 10); // Ensure value is within range
+        intensityLight = Mathf.Clamp(newIntensity, 1, 10); // Ensure value is within range
         ApplyBoostIntensity();
+    }
+    
+    // Public method to manually apply intensity dark (useful for runtime)
+    public void SetIntensityDark(int newIntensity)
+    {
+        intensityDark = Mathf.Clamp(newIntensity, 1, 10); // Ensure value is within range
+        ApplyBoostIntensity();
+    }
+    
+    // Public method to get current dark mode state from GlobalFrameRecorder
+    public bool IsDarkMode()
+    {
+        if (globalFrameRecorder != null)
+        {
+            return globalFrameRecorder.IsDarkMode;
+        }
+        return false; // Default to light mode if no reference
+    }
+    
+    // Public method to refresh duplicates when dark mode changes
+    public void OnDarkModeChanged()
+    {
+        UnityEngine.Debug.Log("Dark mode changed, refreshing duplicates");
+        RefreshDuplicates();
     }
     
     // Context menu for easy testing
@@ -248,5 +332,11 @@ public class BoostIntensityManager : MonoBehaviour
     public void RefreshDuplicatesContextMenu()
     {
         RefreshDuplicates();
+    }
+    
+    [ContextMenu("Test Dark Mode Change")]
+    public void TestDarkModeChange()
+    {
+        OnDarkModeChanged();
     }
 }
