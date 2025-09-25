@@ -145,6 +145,7 @@ public class GlobalFrameRecorder : MonoBehaviour
     {
         showIcon = !showIcon;
         SetIconVisibility(showIcon);
+        UpdateOutputName();
         UnityEngine.Debug.Log($"Icon visibility toggled to: {showIcon}");
     }
 
@@ -156,6 +157,7 @@ public class GlobalFrameRecorder : MonoBehaviour
         {
             iconGameObject.SetActive(visible);
         }
+        UpdateOutputName();
         UnityEngine.Debug.Log($"Icon visibility set to: {visible}");
     }
 
@@ -452,11 +454,12 @@ public class GlobalFrameRecorder : MonoBehaviour
         return endFrame; // Fallback to stored end frame
     }
 
-    // Generate output name with dark/light mode suffix
+    // Generate output name with dark/light mode suffix and icon suffix
     private string GetOutputNameWithMode(string baseName)
     {
         string modeSuffix = isDarkMode ? "_dark" : "_light";
-        return baseName + modeSuffix;
+        string iconSuffix = showIcon ? "_icon" : "";
+        return baseName + modeSuffix + iconSuffix;
     }
 
     // Reset recording for new target
